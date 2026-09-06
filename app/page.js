@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner"; // Sonner toast import করা হলো
 
 export default function Home() {
   const [members, setMembers] = useState([]);
@@ -29,6 +30,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
+      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
     } finally {
       setLoading(false);
     }
@@ -65,11 +67,8 @@ export default function Home() {
     setIsModalOpen(true);
   };
 
-  // Delete Member
-  const handleDeleteMember = async (id) => {
-    if (!confirm("আপনি কি নিশ্চিত যে আপনি এই মেম্বারের পুরো তথ্য মুছে ফেলতে চান?")) {
-      return;
-    }
+  // Actual Delete Logic
+  const confirmDelete = async (id) => {
     setLoading(true);
     try {
       const res = await fetch(`/api/members/${id}`, {
@@ -77,16 +76,30 @@ export default function Home() {
       });
       const data = await res.json();
       if (data.success) {
+        toast.success("Member delete successfully");
         fetchMembers();
       } else {
-        alert("ডিলিট করতে ত্রুটি: " + data.error);
+        toast.error("delete server problem" + data.error);
         setLoading(false);
       }
     } catch (err) {
       console.error(err);
-      alert("ডিলিট করতে সমস্যা হয়েছে");
+      toast.error("Delete server problem");
       setLoading(false);
     }
+  };
+
+  // Delete Member Toast Confirmation
+  const handleDeleteMember = (id) => {
+    toast("are you sure?", {
+      action: {
+        label: "yes",
+        onClick: () => confirmDelete(id),
+      },
+      cancel: {
+        label: "cancel",
+      },
+    });
   };
 
   // Calculate Member Total (Joma - Uttolon)
@@ -112,10 +125,9 @@ export default function Home() {
     ]);
   };
 
-  // Remove individual transaction row inside Popup Modal
   const removeTransactionRow = (index) => {
     if (transactions.length === 1) {
-      alert("কমপক্ষে একটি ট্রানজেকশন সারি থাকতে হবে!");
+      toast.warning("atleat 1 input required");
       return;
     }
     const updated = transactions.filter((_, i) => i !== index);
@@ -133,7 +145,7 @@ export default function Home() {
   const handleSave = async (e) => {
     e.preventDefault();
     if (!name || !biboron) {
-      alert("নাম এবং বিবরণ পূরণ করুন!");
+      toast.warning("নাম এবং বিবরণ পূরণ করুন!");
       return;
     }
     setSubmitting(true);
@@ -149,14 +161,17 @@ export default function Home() {
 
       const data = await res.json();
       if (data.success) {
+        toast.success(
+          editingId ? "update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
+        );
         setIsModalOpen(false);
         fetchMembers();
       } else {
-        alert("ত্রুটি: " + data.error);
+        toast.error("ত্রুটি: " + data.error);
       }
     } catch (err) {
       console.error(err);
-      alert("সেভ করতে ব্যর্থ হয়েছে");
+      toast.error("saving problem");
     } finally {
       setSubmitting(false);
     }
@@ -174,7 +189,7 @@ export default function Home() {
         <h1>
           মোট জমা:{" "}
           {loading ? (
-            <span className="text-gray-500">লোডিং...</span>
+            <span className="text-gray-500">checking...</span>
           ) : (
             `${calculateGrandTotal().toFixed(2)} ৳`
           )}
@@ -186,7 +201,7 @@ export default function Home() {
         <button
           onClick={handleOpenAddModal}
           className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-14 h-14 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-transform hover:scale-105"
-          title="নতুন এন্ট্রি যোগ করুন"
+          title="add new member"
         >
           +
         </button>
@@ -195,11 +210,11 @@ export default function Home() {
       {/* Main Content Area */}
       {loading ? (
         <div className="text-center py-10 font-bold text-lg">
-          ডেটা লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...
+          data loading plz wait ...
         </div>
       ) : members.length === 0 ? (
         <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4">
-          কোনো তথ্য পাওয়া যায়নি। নতুন এন্ট্রি যোগ করতে উপরের '+' বাটনে ক্লিক করুন।
+          No User found plz click + icon then add member
         </div>
       ) : (
         <div className="space-y-8">
@@ -298,7 +313,7 @@ export default function Home() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm"
+                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm text-base"
                     placeholder="মেম্বারের নাম লিখুন"
                   />
                 </div>
@@ -309,7 +324,7 @@ export default function Home() {
                     rows={2}
                     value={biboron}
                     onChange={(e) => setBiboron(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm resize-y"
+                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm resize-y text-base"
                     placeholder="বিবরণ লিখুন (Enter চেপে নতুন লাইন নিতে পারেন)"
                   />
                 </div>
@@ -339,7 +354,7 @@ export default function Home() {
                             onChange={(e) =>
                               handleTransactionChange(index, "date", e.target.value)
                             }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
                           />
                         </td>
                         <td className="border-r border-black p-1 align-top">
@@ -353,7 +368,7 @@ export default function Home() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
                           />
                         </td>
                         <td className="border-r border-black p-1 align-top">
@@ -367,13 +382,13 @@ export default function Home() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
                           />
                         </td>
                         <td className="border-r border-black p-1 align-top">
                           <textarea
                             rows={1}
-                            placeholder="মন্তব্য (Enter দিয়ে লাইন ব্রেক করতে পারেন)"
+                            placeholder="মন্তব্য (Enter দিয়ে লাইন ব্রেক করতে পারেন)"
                             value={tx.comments}
                             onChange={(e) =>
                               handleTransactionChange(
@@ -382,7 +397,7 @@ export default function Home() {
                                 e.target.value
                               )
                             }
-                            className="w-full p-1.5 border border-gray-400 rounded text-sm resize-y"
+                            className="w-full p-1.5 border border-gray-400 rounded text-base resize-y"
                           />
                         </td>
                         <td className="p-1 align-top">
