@@ -1,7 +1,6 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -18,10 +17,11 @@ export const metadata = {
 };
 
 // মোবাইল অটো-জুম বন্ধ করার জন্য viewport কনফিগারেশন
-export const viewport = {
- 
-  userScalable: false,
-};
+export const viewport={
+  width:"device-width",
+  initialScale:1,
+  maximumScale:1
+}
 
 export default function RootLayout({ children }) {
   return (
