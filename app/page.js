@@ -28,7 +28,7 @@ export default function Home() {
         setMembers(data.data);
       }
     } catch (err) {
-      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
+      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
     } finally {
       setLoading(false);
     }
@@ -84,7 +84,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error(err);
-      alert("ডিলিট করতে সমস্যা হয়েছে");
+      alert("ডিলিট করতে সমস্যা হয়েছে");
       setLoading(false);
     }
   };
@@ -156,7 +156,7 @@ export default function Home() {
       }
     } catch (err) {
       console.error(err);
-      alert("সেভ করতে ব্যর্থ হয়েছে");
+      alert("সেভ করতে ব্যর্থ হয়েছে");
     } finally {
       setSubmitting(false);
     }
@@ -165,12 +165,12 @@ export default function Home() {
   return (
     <div className="max-w-4xl mx-auto p-4 text-black">
       {/* Navbar */}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded mt-3 p-2 border-2 border-black">
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
 
       {/* Total Joma Header */}
-      <div className="text-center mt-4 text-xl md:text-2xl font-bold">
+      <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
         <h1>
           মোট জমা:{" "}
           {loading ? (
@@ -181,11 +181,11 @@ export default function Home() {
         </h1>
       </div>
 
-      {/* Add New Entry Button (+) */}
-      <div className="flex justify-center my-4">
+      {/* Single Add New Entry Button (+) */}
+      <div className="flex justify-center my-6">
         <button
           onClick={handleOpenAddModal}
-          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-12 h-12 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-all"
+          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-14 h-14 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-transform hover:scale-105"
           title="নতুন এন্ট্রি যোগ করুন"
         >
           +
@@ -198,7 +198,7 @@ export default function Home() {
           ডেটা লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...
         </div>
       ) : members.length === 0 ? (
-        <div className="text-center py-10 text-gray-600 font-medium">
+        <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4">
           কোনো তথ্য পাওয়া যায়নি। নতুন এন্ট্রি যোগ করতে উপরের '+' বাটনে ক্লিক করুন।
         </div>
       ) : (
@@ -206,24 +206,24 @@ export default function Home() {
           {members.map((member) => {
             const currentTotal = calculateMemberTotal(member.transactions || []);
             return (
-              <div key={member._id} className="overflow-x-auto">
-                <table className="border-2 border-black w-full text-black border-collapse">
+              <div key={member._id} className="overflow-x-auto rounded-lg shadow-md border-2 border-black bg-white">
+                <table className="w-full text-black border-collapse">
                   <thead>
                     {/* Name Header with Edit & Delete Buttons */}
                     <tr className="border-b-2 border-black bg-gray-100">
-                      <th colSpan={4} className="border-2 border-black p-2 text-left">
+                      <th colSpan={4} className="border-2 border-black p-3 text-left">
                         <div className="flex justify-between items-center flex-wrap gap-2">
-                          <span className="font-bold">নাম: {member.name}</span>
+                          <span className="font-bold text-lg">নাম: {member.name}</span>
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEdit(member)}
-                              className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded border border-black cursor-pointer"
+                              className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteMember(member._id)}
-                              className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded border border-black cursor-pointer"
+                              className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
                             >
                               Delete
                             </button>
@@ -232,10 +232,10 @@ export default function Home() {
                       </th>
                     </tr>
 
-                    {/* Biboron Header */}
+                    {/* Biboron Header with Line-break Support */}
                     <tr className="border-b-2 border-black bg-gray-100">
-                      <th colSpan={4} className="border-2 border-black p-2 text-left">
-                        বিবরণ: {member.biboron}
+                      <th colSpan={4} className="border-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
+                        <span className="font-bold">বিবরণ:</span> {member.biboron}
                       </th>
                     </tr>
 
@@ -255,7 +255,9 @@ export default function Home() {
                         <td className="border-2 border-black p-2">{tx.date}</td>
                         <td className="border-2 border-black p-2">{tx.joma}</td>
                         <td className="border-2 border-black p-2">{tx.uttolon}</td>
-                        <td className="border-2 border-black p-2">{tx.comments}</td>
+                        <td className="border-2 border-black p-2 whitespace-pre-wrap text-left md:text-center">
+                          {tx.comments}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -265,7 +267,7 @@ export default function Home() {
                     <tr>
                       <th
                         colSpan={4}
-                        className="border-2 border-black p-2 text-center bg-yellow-500 font-bold text-lg"
+                        className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
                       >
                         TOTAL: {currentTotal}
                       </th>
@@ -278,29 +280,17 @@ export default function Home() {
         </div>
       )}
 
-      {/* Bottom Floating/Fixed Add Button */}
-      {members.length > 0 && !loading && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={handleOpenAddModal}
-            className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-12 h-12 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer"
-          >
-            +
-          </button>
-        </div>
-      )}
-
       {/* POPUP MODAL (Add / Edit) */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg border-2 border-black w-full max-w-2xl p-4 my-8 max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg border-2 border-black w-full max-w-2xl p-5 my-8 max-h-[90vh] overflow-y-auto shadow-2xl">
             <h2 className="text-2xl font-bold text-center mb-4 border-b-2 border-black pb-2">
               {editingId ? "মেম্বার তথ্য ও ট্রানজেকশন পরিবর্তন করুন" : "নতুন মেম্বার ও ট্রানজেকশন ফর্ম"}
             </h2>
 
             <form onSubmit={handleSave} className="space-y-4">
               {/* Member Basic Info Inputs */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div>
                   <label className="block font-bold mb-1">নাম:</label>
                   <input
@@ -308,25 +298,25 @@ export default function Home() {
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded focus:outline-none"
+                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm"
                     placeholder="মেম্বারের নাম লিখুন"
                   />
                 </div>
                 <div>
                   <label className="block font-bold mb-1">বিবরণ:</label>
-                  <input
-                    type="text"
+                  <textarea
                     required
+                    rows={2}
                     value={biboron}
                     onChange={(e) => setBiboron(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded focus:outline-none"
-                    placeholder="বিবরণ লিখুন"
+                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm resize-y"
+                    placeholder="বিবরণ লিখুন (Enter চেপে নতুন লাইন নিতে পারেন)"
                   />
                 </div>
               </div>
 
               {/* Responsive Transaction Inputs Table */}
-              <div className="overflow-x-auto border-2 border-black mt-4">
+              <div className="overflow-x-auto border-2 border-black rounded-lg mt-4 shadow-sm">
                 <table className="w-full text-center border-collapse">
                   <thead>
                     <tr className="bg-gray-200 border-b-2 border-black text-sm md:text-base">
@@ -340,7 +330,7 @@ export default function Home() {
                   <tbody>
                     {transactions.map((tx, index) => (
                       <tr key={index} className="border-b border-black">
-                        <td className="border-r border-black p-1">
+                        <td className="border-r border-black p-1 align-top">
                           <input
                             type="text"
                             required
@@ -349,10 +339,10 @@ export default function Home() {
                             onChange={(e) =>
                               handleTransactionChange(index, "date", e.target.value)
                             }
-                            className="w-full p-1 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
                           />
                         </td>
-                        <td className="border-r border-black p-1">
+                        <td className="border-r border-black p-1 align-top">
                           <input
                             type="number"
                             value={tx.joma}
@@ -363,10 +353,10 @@ export default function Home() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full p-1 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
                           />
                         </td>
-                        <td className="border-r border-black p-1">
+                        <td className="border-r border-black p-1 align-top">
                           <input
                             type="number"
                             value={tx.uttolon}
@@ -377,13 +367,13 @@ export default function Home() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full p-1 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-center text-sm"
                           />
                         </td>
-                        <td className="border-r border-black p-1">
-                          <input
-                            type="text"
-                            placeholder="মন্তব্য"
+                        <td className="border-r border-black p-1 align-top">
+                          <textarea
+                            rows={1}
+                            placeholder="মন্তব্য (Enter দিয়ে লাইন ব্রেক করতে পারেন)"
                             value={tx.comments}
                             onChange={(e) =>
                               handleTransactionChange(
@@ -392,14 +382,14 @@ export default function Home() {
                                 e.target.value
                               )
                             }
-                            className="w-full p-1 border border-gray-400 rounded text-center text-sm"
+                            className="w-full p-1.5 border border-gray-400 rounded text-sm resize-y"
                           />
                         </td>
-                        <td className="p-1">
+                        <td className="p-1 align-top">
                           <button
                             type="button"
                             onClick={() => removeTransactionRow(index)}
-                            className="text-red-600 font-bold hover:bg-red-100 px-2 py-0.5 rounded border border-red-400"
+                            className="text-red-600 font-bold hover:bg-red-100 px-2 py-1 rounded border border-red-400"
                             title="সারি সরান"
                           >
                             ✕
@@ -412,11 +402,11 @@ export default function Home() {
               </div>
 
               {/* Add More Row Button */}
-              <div className="flex justify-center mt-2">
+              <div className="flex justify-center mt-3">
                 <button
                   type="button"
                   onClick={addTransactionRow}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-xl px-3 py-1 rounded-full border-2 border-black cursor-pointer"
+                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-xl px-4 py-1 rounded-full border-2 border-black cursor-pointer shadow-sm"
                   title="আরও ট্রানজেকশন সারি যোগ করুন"
                 >
                   +
@@ -424,23 +414,23 @@ export default function Home() {
               </div>
 
               {/* Live Total Calculation inside Popup */}
-              <div className="bg-yellow-500 text-center font-bold text-lg p-2 border-2 border-black mt-2">
+              <div className="bg-yellow-500 text-center font-bold text-lg p-2 border-2 border-black rounded-md mt-3 shadow-sm">
                 TOTAL: {calculateMemberTotal(transactions)}
               </div>
 
-              {/* Buttons */}
-              <div className="flex justify-end gap-3 mt-4">
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 mt-5">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border-2 border-black rounded font-bold hover:bg-gray-200 cursor-pointer"
+                  className="px-4 py-2 border-2 border-black rounded-md font-bold hover:bg-gray-200 cursor-pointer shadow-sm"
                 >
                   বাতিল
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-black border-2 border-black font-bold rounded cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-black border-2 border-black font-bold rounded-md cursor-pointer disabled:opacity-50 shadow-sm"
                 >
                   {submitting ? "সেভ হচ্ছে..." : "Save"}
                 </button>
