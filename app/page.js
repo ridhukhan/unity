@@ -324,7 +324,7 @@ export default function Home() {
                       <th className="border-r-2 border-black p-2">জমা</th>
                       <th className="border-r-2 border-black p-2">উত্তোলন</th>
                       <th className="border-r-2 border-black p-2">Comments</th>
-                      <th className="p-2 w-10">মুছুন</th>
+                      <th className="p-2 w-10">Delete</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -390,7 +390,7 @@ export default function Home() {
                             type="button"
                             onClick={() => removeTransactionRow(index)}
                             className="text-red-600 font-bold hover:bg-red-100 px-2 py-1 rounded border border-red-400"
-                            title="সারি সরান"
+                            title="Remove input"
                           >
                             ✕
                           </button>
@@ -407,7 +407,7 @@ export default function Home() {
                   type="button"
                   onClick={addTransactionRow}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-xl px-4 py-1 rounded-full border-2 border-black cursor-pointer shadow-sm"
-                  title="আরও ট্রানজেকশন সারি যোগ করুন"
+                  title="Add more input "
                 >
                   +
                 </button>
@@ -425,14 +425,14 @@ export default function Home() {
                   onClick={() => setIsModalOpen(false)}
                   className="px-4 py-2 border-2 border-black rounded-md font-bold hover:bg-gray-200 cursor-pointer shadow-sm"
                 >
-                  বাতিল
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
                   className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-black border-2 border-black font-bold rounded-md cursor-pointer disabled:opacity-50 shadow-sm"
                 >
-                  {submitting ? "সেভ হচ্ছে..." : "Save"}
+                  {submitting ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
