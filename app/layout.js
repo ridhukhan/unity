@@ -16,7 +16,6 @@ export const metadata = {
   description: "this is a Strong unity",
 };
 
-// মোবাইল অটো-জুম বন্ধ করার জন্য viewport কনফিগারেশন
 export const viewport={
   width:"device-width",
   initialScale:1,
