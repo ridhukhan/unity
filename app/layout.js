@@ -19,9 +19,7 @@ export const metadata = {
 
 // মোবাইল অটো-জুম বন্ধ করার জন্য viewport কনফিগারেশন
 export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
+ 
   userScalable: false,
 };
 
