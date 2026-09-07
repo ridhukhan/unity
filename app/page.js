@@ -58,11 +58,11 @@ export default function Home() {
       member.transactions.length > 0
         ? member.transactions.map((tx) => ({
             date: tx.date || "",
-            joma: tx.joma || 0,
+            joma: tx.joma ,
             uttolon: tx.uttolon || 0,
             comments: tx.comments || "",
           }))
-        : [{ date: "", joma: 0, uttolon: 0, comments: "" }]
+        : [{ date: "", joma: null, uttolon: 0, comments: "" }]
     );
     setIsModalOpen(true);
   };
