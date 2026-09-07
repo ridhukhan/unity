@@ -45,7 +45,7 @@ export default function Home() {
     setEditingId(null);
     setName("");
     setBiboron("");
-    setTransactions([{ date: "", joma: 0, uttolon: 0, comments: "" }]);
+    setTransactions([{ date: "", joma: null, uttolon: 0, comments: "" }]);
     setIsModalOpen(true);
   };
 
@@ -121,7 +121,7 @@ export default function Home() {
   const addTransactionRow = () => {
     setTransactions([
       ...transactions,
-      { date: "", joma: 0, uttolon: 0, comments: "" },
+      { date: "", joma: null, uttolon: 0, comments: "" },
     ]);
   };
 
