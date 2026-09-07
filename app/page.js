@@ -1,459 +1,360 @@
-"use client";
+'use client'
 
-import { useState, useEffect } from "react";
-import { toast } from "sonner"; // Sonner toast import করা হলো
+import { useState, useEffect } from "react"
+import Link from "next/link"
 
-export default function Home() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  
-  // Edit State
-  const [editingId, setEditingId] = useState(null);
+export default function HOME() {
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  // Form State
-  const [name, setName] = useState("");
-  const [biboron, setBiboron] = useState("");
-  const [transactions, setTransactions] = useState([
-    { date: "", joma: null, uttolon: 0, comments: "" },
-  ]);
+  const CLOUD_NAME = "dfzaefrkt"
+  const UPLOAD_PRESET = "radakrishna" // Cloudinary te create kora Unsigned Upload Preset name
 
-  // Fetch Members from Database
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/members");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [founders, setFounders] = useState([
+    { id: 1, name: "প্রতিষ্ঠাতা ১", image: "https://via.placeholder.com/150" },
+    { id: 2, name: "প্রতিষ্ঠাতা ২", image: "https://via.placeholder.com/150" },
+  ])
+
+  const [directors, setDirectors] = useState([
+    { id: 1, name: "পরিচালক ১", image: "https://via.placeholder.com/150" },
+    { id: 2, name: "পরিচালক ২", image: "https://via.placeholder.com/150" },
+    { id: 3, name: "পরিচালক ৩", image: "https://via.placeholder.com/150" },
+  ])
+
+  const [partners, setPartners] = useState([
+    { id: 1, name: "অংশীদার ১", image: "https://via.placeholder.com/150" },
+    { id: 2, name: "অংশীদার ২", image: "https://via.placeholder.com/150" },
+    { id: 3, name: "অংশীদার ৩", image: "https://via.placeholder.com/150" },
+    { id: 4, name: "অংশীদার ৪", image: "https://via.placeholder.com/150" },
+    { id: 5, name: "অংশীদার ৫", image: "https://via.placeholder.com/150" },
+    { id: 6, name: "অংশীদার ৬", image: "https://via.placeholder.com/150" },
+    { id: 7, name: "অংশীদার ৭", image: "https://via.placeholder.com/150" },
+    { id: 8, name: "অংশীদার ৮", image: "https://via.placeholder.com/150" },
+    { id: 9, name: "অংশীদার ৯", image: "https://via.placeholder.com/150" },
+  ])
 
   useEffect(() => {
-    fetchMembers();
-  }, []);
+    const adminState = localStorage.getItem("adminLoggedIn")
+    if (adminState === "true") {
+      setIsAdmin(true)
+    }
 
-  // Open Modal for New Member
-  const handleOpenAddModal = () => {
-    setEditingId(null);
-    setName("");
-    setBiboron("");
-    setTransactions([{ date: "", joma: null, uttolon: 0, comments: "" }]);
-    setIsModalOpen(true);
-  };
+    // MongoDB থেকে ডাটা ফেচ করা
+    fetch("/api/management")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success && data.data) {
+          if (data.data.founders && data.data.founders.length > 0) setFounders(data.data.founders)
+          if (data.data.directors && data.data.directors.length > 0) setDirectors(data.data.directors)
+          if (data.data.partners && data.data.partners.length > 0) setPartners(data.data.partners)
+        }
+      })
+      .catch((err) => console.log("Data fetch error:", err))
+  }, [])
 
-  // Open Modal for Editing Existing Member
-  const handleEdit = (member) => {
-    setEditingId(member._id);
-    setName(member.name);
-    setBiboron(member.biboron);
-    setTransactions(
-      member.transactions.length > 0
-        ? member.transactions.map((tx) => ({
-            date: tx.date || "",
-            joma: tx.joma ,
-            uttolon: tx.uttolon || 0,
-            comments: tx.comments || "",
-          }))
-        : [{ date: "", joma: null, uttolon: 0, comments: "" }]
-    );
-    setIsModalOpen(true);
-  };
-
-  // Actual Delete Logic
-  const confirmDelete = async (id) => {
-    setLoading(true);
+  // MongoDB-তে ডাটা সেভ করার ফাংশন
+  const saveToDatabase = async (updatedFounders, updatedDirectors, updatedPartners) => {
     try {
-      const res = await fetch(`/api/members/${id}`, {
-        method: "DELETE",
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast.success("Member delete successfully");
-        fetchMembers();
-      } else {
-        toast.error("delete server problem" + data.error);
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Delete server problem");
-      setLoading(false);
-    }
-  };
-
-  // Delete Member Toast Confirmation
-  const handleDeleteMember = (id) => {
-    toast("are you sure?", {
-      action: {
-        label: "yes",
-        onClick: () => confirmDelete(id),
-      },
-      cancel: {
-        label: "cancel",
-      },
-    });
-  };
-
-  // Calculate Member Total (Joma - Uttolon)
-  const calculateMemberTotal = (txList) => {
-    return txList.reduce(
-      (acc, curr) => acc + (Number(curr.joma) || 0) - (Number(curr.uttolon) || 0),
-      0
-    );
-  };
-
-  // Calculate Grand Total of all Members
-  const calculateGrandTotal = () => {
-    return members.reduce((acc, member) => {
-      return acc + calculateMemberTotal(member.transactions || []);
-    }, 0);
-  };
-
-  // Add new transaction row inside Popup Modal
-  const addTransactionRow = () => {
-    setTransactions([
-      ...transactions,
-      { date: "", joma: null, uttolon: 0, comments: "" },
-    ]);
-  };
-
-  const removeTransactionRow = (index) => {
-    if (transactions.length === 1) {
-      toast.warning("atleat 1 input required");
-      return;
-    }
-    const updated = transactions.filter((_, i) => i !== index);
-    setTransactions(updated);
-  };
-
-  // Handle Input Changes inside Modal Table
-  const handleTransactionChange = (index, field, value) => {
-    const updated = [...transactions];
-    updated[index][field] = value;
-    setTransactions(updated);
-  };
-
-  // Save (Create or Update) Handler
-  const handleSave = async (e) => {
-    e.preventDefault();
-    if (!name || !biboron) {
-      toast.warning("নাম এবং বিবরণ পূরণ করুন!");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const url = editingId ? `/api/members/${editingId}` : "/api/members";
-      const method = editingId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
+      const res = await fetch("/api/management", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, biboron, transactions }),
-      });
-
-      const data = await res.json();
-      if (data.success) {
-        toast.success(
-          editingId ? "update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
-        );
-        setIsModalOpen(false);
-        fetchMembers();
-      } else {
-        toast.error("ত্রুটি: " + data.error);
+        body: JSON.stringify({
+          founders: updatedFounders,
+          directors: updatedDirectors,
+          partners: updatedPartners,
+        }),
+      })
+      const result = await res.json()
+      if (!result.success) {
+        alert("ডাটাবেজে সেভ করতে সমস্যা হয়েছে!")
       }
     } catch (err) {
-      console.error(err);
-      toast.error("saving problem");
-    } finally {
-      setSubmitting(false);
+      console.error("Save error:", err)
     }
-  };
+  }
+
+  // নাম পরিবর্তন করার জন্য
+  const handleNameChange = (category, index, newName) => {
+    if (category === "founders") {
+      const updated = [...founders]
+      updated[index].name = newName
+      setFounders(updated)
+      saveToDatabase(updated, directors, partners)
+    } else if (category === "directors") {
+      const updated = [...directors]
+      updated[index].name = newName
+      setDirectors(updated)
+      saveToDatabase(founders, updated, partners)
+    } else if (category === "partners") {
+      const updated = [...partners]
+      updated[index].name = newName
+      setPartners(updated)
+      saveToDatabase(founders, directors, updated)
+    }
+  }
+
+  // Cloudinary Image Upload & DB Update
+  const handleImageUpload = async (e, category, index) => {
+    const file = e.target.files[0]
+    if (!file) return
+
+    setLoading(true)
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", UPLOAD_PRESET)
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await res.json()
+
+      if (res.ok && data.secure_url) {
+        const imageUrl = data.secure_url
+
+        let newFounders = [...founders]
+        let newDirectors = [...directors]
+        let newPartners = [...partners]
+
+        if (category === "founders") {
+          newFounders[index].image = imageUrl
+          setFounders(newFounders)
+        } else if (category === "directors") {
+          newDirectors[index].image = imageUrl
+          setDirectors(newDirectors)
+        } else if (category === "partners") {
+          newPartners[index].image = imageUrl
+          setPartners(newPartners)
+        }
+
+        await saveToDatabase(newFounders, newDirectors, newPartners)
+        alert("ছবি সফলভাবে আপলোড ও সেভ হয়েছে!")
+      } else {
+        alert("আপলোড ব্যর্থ হয়েছে! Unsigned Preset চেক করুন।")
+      }
+    } catch (err) {
+      alert("নেটওয়ার্ক ত্রুটি হয়েছে!")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // নতুন অংশীদার যুক্ত করার জন্য
+  const handleAddPartner = () => {
+    const newPartnersList = [
+      ...partners,
+      {
+        id: partners.length + 1,
+        name: `অংশীদার ${partners.length + 1}`,
+        image: "https://via.placeholder.com/150",
+      },
+    ]
+    setPartners(newPartnersList)
+    saveToDatabase(founders, directors, newPartnersList)
+  }
+
+  // অংশীদার মুছে ফেলার জন্য
+  const handleDeletePartner = (index) => {
+    if (confirm("আপনি কি নিশ্চিত যে এই অংশীদারকে মুছে ফেলতে চান?")) {
+      const updatedPartners = partners.filter((_, idx) => idx !== index)
+      setPartners(updatedPartners)
+      saveToDatabase(founders, directors, updatedPartners)
+    }
+  }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-black">
-      {/* Navbar */}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
-        <h1>সঞ্চয় হিসাব</h1>
-      </nav>
-
-      {/* Total Joma Header */}
-      <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
-        <h1>
-          মোট জমা:{" "}
-          {loading ? (
-            <span className="text-gray-500">checking...</span>
-          ) : (
-            `${calculateGrandTotal()} ৳`
-          )}
-        </h1>
-      </div>
-
-      {/* Single Add New Entry Button (+) */}
-      <div className="flex justify-center my-6">
-        <button
-          onClick={handleOpenAddModal}
-          className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-14 h-14 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-transform hover:scale-105"
-          title="add new member"
-        >
-          +
-        </button>
-      </div>
-
-      {/* Main Content Area */}
-      {loading ? (
-        <div className="text-center py-10 font-bold text-lg">
-          data loading plz wait ...
+    <div className="bg-slate-900 min-h-screen text-white flex flex-col justify-between font-sans pb-24">
+      {/* Header */}
+      <header className="bg-slate-800 border-b border-slate-700 shadow-lg py-6 text-center px-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-2">
+          <img
+            src="https://res.cloudinary.com/dfzaefrkt/image/upload/v1787029233/WhatsApp_Image_2026-08-18_at_10.56.30_AM_s2jtbp.jpg"
+            alt="Logo"
+            className="rounded-full h-16 w-16 object-cover border-2 border-cyan-600 shadow-md"
+          />
+          <h1 className="font-extrabold text-2xl md:text-4xl text-amber-400 tracking-wide">
+            রাধা-কৃষ্ণ সেবা সংঘ
+          </h1>
         </div>
-      ) : members.length === 0 ? (
-        <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4">
-          No User found plz click + icon then add member
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {members.map((member) => {
-            const currentTotal = calculateMemberTotal(member.transactions || []);
-            return (
-              <div key={member._id} className="overflow-x-auto rounded-lg shadow-md border-2 border-black bg-white">
-                <table className="w-full text-black border-collapse">
-                  <thead>
-                    {/* Name Header with Edit & Delete Buttons */}
-                    <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={4} className="border-2 border-black p-3 text-left">
-                        <div className="flex justify-between items-center flex-wrap gap-2">
-                          <span className="font-bold text-lg">নাম: {member.name}</span>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEdit(member)}
-                              className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteMember(member._id)}
-                              className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </div>
-                      </th>
-                    </tr>
+        <h3 className="text-cyan-400 text-sm md:text-base font-semibold">(একটি ধর্মীয় সেবামূলক সংগঠন)</h3>
+        <p className="text-slate-400 text-xs md:text-sm mt-1">প্রতিষ্ঠাকাল - ২১/০৫/২০০৭</p>
+      </header>
 
-                    {/* Biboron Header with Line-break Support */}
-                    <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={4} className="border-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
-                        <span className="font-bold">বিবরণ:</span> {member.biboron}
-                      </th>
-                    </tr>
-
-                    {/* Column Headers */}
-                    <tr className="border-b-2 border-black bg-white text-center text-sm md:text-base">
-                      <th className="border-2 border-black p-2 w-1/4">তারিখ</th>
-                      <th className="border-2 border-black p-2 w-1/4">জমা</th>
-                      <th className="border-2 border-black p-2 w-1/4">উত্তোলন</th>
-                      <th className="border-2 border-black p-2 w-1/4">Comments</th>
-                    </tr>
-                  </thead>
-
-                  {/* Transaction Rows */}
-                  <tbody>
-                    {member.transactions.map((tx, idx) => (
-                      <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
-                        <td className="border-2 border-black p-2">{tx.date}</td>
-                        <td className="border-2 border-black p-2">{tx.joma}</td>
-                        <td className="border-2 border-black p-2">{tx.uttolon}</td>
-                        <td className="border-2 border-black p-2 whitespace-pre-wrap text-left md:text-center">
-                          {tx.comments}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-
-                  {/* Individual Total */}
-                  <tfoot>
-                    <tr>
-                      <th
-                        colSpan={4}
-                        className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
-                      >
-                        TOTAL: {currentTotal}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* POPUP MODAL (Add / Edit) */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg border-2 border-black w-full max-w-2xl p-5 my-8 max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 className="text-2xl font-bold text-center mb-4 border-b-2 border-black pb-2">
-              {editingId ? "মেম্বার তথ্য ও ট্রানজেকশন পরিবর্তন করুন" : "নতুন মেম্বার ও ট্রানজেকশন ফর্ম"}
-            </h2>
-
-            <form onSubmit={handleSave} className="space-y-4">
-              {/* Member Basic Info Inputs */}
-              <div className="space-y-3">
-                <div>
-                  <label className="block font-bold mb-1">নাম:</label>
-                  <input
-                    type="text"
-                    required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm text-base"
-                    placeholder="মেম্বারের নাম লিখুন"
+      {/* Main Content */}
+      <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-8 space-y-12">
+        
+        {/* ১. প্রতিষ্ঠাতা */}
+        <section className="text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-amber-400 mb-6 border-b border-slate-700 pb-2 inline-block px-6">
+            প্রতিষ্ঠাতা
+          </h2>
+          <div className="flex justify-center items-center gap-6 sm:gap-12 flex-wrap">
+            {founders.map((item, idx) => (
+              <div key={item.id || idx} className="group relative flex flex-col items-center">
+                <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-full p-1 bg-gradient-to-tr from-cyan-500 to-amber-400 shadow-xl group-hover:scale-105 transition-transform duration-300">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full rounded-full object-cover border-2 border-slate-900"
                   />
                 </div>
-                <div>
-                  <label className="block font-bold mb-1">বিবরণ:</label>
-                  <textarea
-                    required
-                    rows={2}
-                    value={biboron}
-                    onChange={(e) => setBiboron(e.target.value)}
-                    className="w-full border-2 border-black p-2 rounded-md focus:outline-none shadow-sm resize-y text-base"
-                    placeholder="বিবরণ লিখুন (Enter চেপে নতুন লাইন নিতে পারেন)"
-                  />
-                </div>
-              </div>
 
-              {/* Responsive Transaction Inputs Table */}
-              <div className="overflow-x-auto border-2 border-black rounded-lg mt-4 shadow-sm">
-                <table className="w-full text-center border-collapse">
-                  <thead>
-                    <tr className="bg-gray-200 border-b-2 border-black text-sm md:text-base">
-                      <th className="border-r-2 border-black p-2">তারিখ</th>
-                      <th className="border-r-2 border-black p-2">জমা</th>
-                      <th className="border-r-2 border-black p-2">উত্তোলন</th>
-                      <th className="border-r-2 border-black p-2">Comments</th>
-                      <th className="p-2 w-10">Delete</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactions.map((tx, index) => (
-                      <tr key={index} className="border-b border-black">
-                        <td className="border-r border-black p-1 align-top">
-                          <input
-                            type="text"
-                            required
-                            placeholder="1/9/2026"
-                            value={tx.date}
-                            onChange={(e) =>
-                              handleTransactionChange(index, "date", e.target.value)
-                            }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
-                          />
-                        </td>
-                        <td className="border-r border-black p-1 align-top">
-                          <input
-                            type="number"
-                            value={tx.joma}
-                            onChange={(e) =>
-                              handleTransactionChange(
-                                index,
-                                "joma",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
-                          />
-                        </td>
-                        <td className="border-r border-black p-1 align-top">
-                          <input
-                            type="number"
-                            value={tx.uttolon}
-                            onChange={(e) =>
-                              handleTransactionChange(
-                                index,
-                                "uttolon",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
-                          />
-                        </td>
-                        <td className="border-r border-black p-1 align-top">
-                          <textarea
-                            rows={1}
-                            placeholder="মন্তব্য (Enter দিয়ে লাইন ব্রেক করতে পারেন)"
-                            value={tx.comments}
-                            onChange={(e) =>
-                              handleTransactionChange(
-                                index,
-                                "comments",
-                                e.target.value
-                              )
-                            }
-                            className="w-full p-1.5 border border-gray-400 rounded text-base resize-y"
-                          />
-                        </td>
-                        <td className="p-1 align-top">
-                          <button
-                            type="button"
-                            onClick={() => removeTransactionRow(index)}
-                            className="text-red-600 font-bold hover:bg-red-100 px-2 py-1 rounded border border-red-400"
-                            title="Remove input"
-                          >
-                            ✕
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                {/* প্রতিষ্ঠাতা সেকশনে এডমিন মোডের জন্য আপলোড ও নাম পরিবর্তন ইনপুট */}
+                {isAdmin ? (
+                  <div className="mt-2 flex flex-col gap-1 w-full max-w-[140px]">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleNameChange("founders", idx, e.target.value)}
+                      className="bg-slate-800 text-cyan-300 text-xs text-center border border-slate-700 rounded px-1 py-0.5 focus:outline-none focus:border-cyan-400"
+                    />
+                    <label className="text-[10px] bg-cyan-600 hover:bg-cyan-700 text-white py-0.5 px-2 rounded cursor-pointer transition text-center font-semibold">
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(e, "founders", idx)}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <span className="mt-3 text-sm sm:text-base font-semibold text-slate-200">{item.name}</span>
+                )}
               </div>
-
-              {/* Add More Row Button */}
-              <div className="flex justify-center mt-3">
-                <button
-                  type="button"
-                  onClick={addTransactionRow}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-xl px-4 py-1 rounded-full border-2 border-black cursor-pointer shadow-sm"
-                  title="Add more input "
-                >
-                  +
-                </button>
-              </div>
-
-              {/* Live Total Calculation inside Popup */}
-              <div className="bg-yellow-500 text-center font-bold text-lg p-2 border-2 border-black rounded-md mt-3 shadow-sm">
-                TOTAL: {calculateMemberTotal(transactions)}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex justify-end gap-3 mt-5">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border-2 border-black rounded-md font-bold hover:bg-gray-200 cursor-pointer shadow-sm"
-                >
-                  CANCEL
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-black border-2 border-black font-bold rounded-md cursor-pointer disabled:opacity-50 shadow-sm"
-                >
-                  {submitting ? "Saving..." : "Save"}
-                </button>
-              </div>
-            </form>
+            ))}
           </div>
-        </div>
-      )}
+        </section>
+
+        {/* ২. পরিচালনায় */}
+        <section className="text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-amber-400 mb-6 border-b border-slate-700 pb-2 inline-block px-6">
+            পরিচালনায়
+          </h2>
+          <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-lg mx-auto">
+            {directors.map((item, idx) => (
+              <div key={item.id || idx} className="group flex flex-col items-center">
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-emerald-500 to-cyan-500 shadow-lg group-hover:scale-105 transition-transform duration-300">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full rounded-full object-cover border-2 border-slate-900"
+                  />
+                </div>
+
+                {isAdmin ? (
+                  <div className="mt-2 flex flex-col gap-1 w-full">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleNameChange("directors", idx, e.target.value)}
+                      className="bg-slate-800 text-emerald-300 text-xs text-center border border-slate-700 rounded px-1 py-0.5 focus:outline-none focus:border-emerald-400"
+                    />
+                    <label className="text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white py-0.5 px-2 rounded cursor-pointer transition text-center font-semibold">
+                      Upload
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleImageUpload(e, "directors", idx)}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <span className="mt-2 text-xs sm:text-sm font-medium text-slate-300">{item.name}</span>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ৩. অংশীদারবৃন্দ */}
+        <section className="text-center">
+          <h2 className="text-xl md:text-2xl font-bold text-amber-400 mb-6 border-b border-slate-700 pb-2 inline-block px-6">
+            অংশীদারবৃন্দ
+          </h2>
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 max-w-xl mx-auto">
+            {partners.map((item, idx) => (
+              <div key={item.id || idx} className="group flex flex-col items-center">
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full p-1 bg-gradient-to-tr from-amber-500 to-red-500 shadow-md group-hover:scale-105 transition-transform duration-300">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full rounded-full object-cover border-2 border-slate-900"
+                  />
+                </div>
+
+                {isAdmin ? (
+                  <div className="mt-1 flex flex-col gap-1 w-full">
+                    <input
+                      type="text"
+                      value={item.name}
+                      onChange={(e) => handleNameChange("partners", idx, e.target.value)}
+                      className="bg-slate-800 text-amber-300 text-[10px] text-center border border-slate-700 rounded px-1 py-0.5 focus:outline-none"
+                    />
+                    <div className="flex gap-1 justify-center">
+                      <label className="flex-1 text-[9px] bg-amber-600 hover:bg-amber-700 text-slate-900 font-bold py-0.5 px-1 rounded cursor-pointer transition text-center">
+                        Upload
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e, "partners", idx)}
+                        />
+                      </label>
+                      <button
+                        onClick={() => handleDeletePartner(idx)}
+                        className="text-[9px] bg-red-600 hover:bg-red-700 text-white font-bold py-0.5 px-1.5 rounded transition"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <span className="mt-1 text-xs font-medium text-slate-300">{item.name}</span>
+                )}
+              </div>
+            ))}
+
+            {isAdmin && (
+              <div
+                onClick={handleAddPartner}
+                className="flex flex-col items-center justify-center cursor-pointer group"
+              >
+                <div className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-2 border-dashed border-slate-500 group-hover:border-amber-400 flex items-center justify-center transition-colors bg-slate-800/50">
+                  <span className="text-3xl text-slate-400 group-hover:text-amber-400 font-bold">+</span>
+                </div>
+                <span className="mt-2 text-xs font-semibold text-slate-400 group-hover:text-amber-400">
+                  নতুন যুক্ত করুন
+                </span>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Note Section */}
+        {isAdmin && (
+          <section className="flex justify-center pt-4">
+            <Link href="/note" className="group w-full max-w-sm">
+              <div className="bg-slate-800 border border-amber-500/50 rounded-2xl p-6 text-center shadow-xl hover:border-amber-400 hover:scale-105 transition-all duration-300">
+                <div className="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-amber-500 group-hover:text-white transition-all">
+                  <span className="text-3xl">📌</span>
+                </div>
+                <h3 className="text-2xl font-bold text-amber-400 mb-2">NOTE</h3>
+                <p className="text-slate-400 text-sm">ব্যক্তিগত নোট তৈরি ও আপডেট করুন</p>
+              </div>
+            </Link>
+          </section>
+        )}
+
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-slate-800/50 border-t border-slate-800 py-4 text-center text-slate-500 text-xs">
+        <p>© {new Date().getFullYear()} radakrishna foundation. All rights reserved.</p>
+      </footer>
     </div>
-  );
+  )
 }
