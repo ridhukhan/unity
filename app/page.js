@@ -191,7 +191,7 @@ export default function Home() {
           {loading ? (
             <span className="text-gray-500">checking...</span>
           ) : (
-            `${calculateGrandTotal().toFixed(2)} ৳`
+            `${calculateGrandTotal()} ৳`
           )}
         </h1>
       </div>
