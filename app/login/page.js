@@ -65,12 +65,8 @@ export default function AdminLogin() {
         }}
       >
         <input
-          style={{
-            width: "100%",
-            padding: "10px",
-            margin: "10px 0",
-            boxSizing: "border-box",
-          }}
+        className="bg-white text-black font-bold w-full p-4 rounded border-red-700 border-2 border-solid"
+
           type="email"
           placeholder="write ur email"
           required
@@ -78,12 +74,8 @@ export default function AdminLogin() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <input
-          style={{
-            width: "100%",
-            padding: "10px",
-            margin: "10px 0",
-            boxSizing: "border-box",
-          }}
+        className="bg-white text-black font-bold w-full p-4 rounded border-red-700 border-2 border-solid"
+
           type="password"
           placeholder="password"
           required
