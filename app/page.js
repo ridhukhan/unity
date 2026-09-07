@@ -16,7 +16,7 @@ export default function Home() {
   const [name, setName] = useState("");
   const [biboron, setBiboron] = useState("");
   const [transactions, setTransactions] = useState([
-    { date: "", joma: 0, uttolon: 0, comments: "" },
+    { date: "", joma: null, uttolon: 0, comments: "" },
   ]);
 
   // Fetch Members from Database
