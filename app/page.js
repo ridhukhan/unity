@@ -2,44 +2,50 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function HOME() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const CLOUD_NAME = "dfzaefrkt"
-  const UPLOAD_PRESET = "radakrishna" // Cloudinary te create kora Unsigned Upload Preset name
+  const UPLOAD_PRESET = "radakrishna"
 
   const [founders, setFounders] = useState([
-    { id: 1, name: "প্রতিষ্ঠাতা ১", image: "https://via.placeholder.com/150" },
-    { id: 2, name: "প্রতিষ্ঠাতা ২", image: "https://via.placeholder.com/150" },
+    { id: 1, name: "প্রতিষ্ঠাতা ১", image: "https://placehold.co/150" },
+    { id: 2, name: "প্রতিষ্ঠাতা ২", image: "https://placehold.co/150" },
   ])
 
   const [directors, setDirectors] = useState([
-    { id: 1, name: "পরিচালক ১", image: "https://via.placeholder.com/150" },
-    { id: 2, name: "পরিচালক ২", image: "https://via.placeholder.com/150" },
-    { id: 3, name: "পরিচালক ৩", image: "https://via.placeholder.com/150" },
+    { id: 1, name: "পরিচালক ১", image: "https://placehold.co/150" },
+    { id: 2, name: "পরিচালক ২", image: "https://placehold.co/150" },
+    { id: 3, name: "পরিচালক ৩", image: "https://placehold.co/150" },
   ])
 
   const [partners, setPartners] = useState([
-    { id: 1, name: "অংশীদার ১", image: "https://via.placeholder.com/150" },
-    { id: 2, name: "অংশীদার ২", image: "https://via.placeholder.com/150" },
-    { id: 3, name: "অংশীদার ৩", image: "https://via.placeholder.com/150" },
-    { id: 4, name: "অংশীদার ৪", image: "https://via.placeholder.com/150" },
-    { id: 5, name: "অংশীদার ৫", image: "https://via.placeholder.com/150" },
-    { id: 6, name: "অংশীদার ৬", image: "https://via.placeholder.com/150" },
-    { id: 7, name: "অংশীদার ৭", image: "https://via.placeholder.com/150" },
-    { id: 8, name: "অংশীদার ৮", image: "https://via.placeholder.com/150" },
-    { id: 9, name: "অংশীদার ৯", image: "https://via.placeholder.com/150" },
+    { id: 1, name: "অংশীদার ১", image: "https://placehold.co/150" },
+    { id: 2, name: "অংশীদার ২", image: "https://placehold.co/150" },
+    { id: 3, name: "অংশীদার ৩", image: "https://placehold.co/150" },
+    { id: 4, name: "অংশীদার ৪", image: "https://placehold.co/150" },
+    { id: 5, name: "অংশীদার ৫", image: "https://placehold.co/150" },
+    { id: 6, name: "অংশীদার ৬", image: "https://placehold.co/150" },
+    { id: 7, name: "অংশীদার ৭", image: "https://placehold.co/150" },
+    { id: 8, name: "অংশীদার ৮", image: "https://placehold.co/150" },
+    { id: 9, name: "অংশীদার ৯", image: "https://placehold.co/150" },
   ])
 
   useEffect(() => {
-    const adminState = localStorage.getItem("adminLoggedIn")
-    if (adminState === "true") {
-      setIsAdmin(true)
-    }
+    // 1. Auth Endpoint থেকে কুকি চেক করা
+    fetch("/api/me")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.isAdmin) {
+          setIsAdmin(true)
+        }
+      })
+      .catch((err) => console.log("Auth verification error:", err))
 
-    // MongoDB থেকে ডাটা ফেচ করা
+    // 2. MongoDB থেকে ডাটা ফেচ করা
     fetch("/api/management")
       .then((res) => res.json())
       .then((data) => {
@@ -66,10 +72,11 @@ export default function HOME() {
       })
       const result = await res.json()
       if (!result.success) {
-        alert("ডাটাবেজে সেভ করতে সমস্যা হয়েছে!")
+        toast.error("ডাটাবেজে সেভ করতে সমস্যা হয়েছে!")
       }
     } catch (err) {
       console.error("Save error:", err)
+      toast.error("ডাটা সেভ করতে ব্যর্থ হয়েছে!")
     }
   }
 
@@ -99,6 +106,8 @@ export default function HOME() {
     if (!file) return
 
     setLoading(true)
+    const toastId = toast.loading("ছবি আপলোড হচ্ছে...")
+
     const formData = new FormData()
     formData.append("file", file)
     formData.append("upload_preset", UPLOAD_PRESET)
@@ -130,12 +139,12 @@ export default function HOME() {
         }
 
         await saveToDatabase(newFounders, newDirectors, newPartners)
-        alert("ছবি সফলভাবে আপলোড ও সেভ হয়েছে!")
+        toast.success("ছবি সফলভাবে আপলোড ও সেভ হয়েছে!", { id: toastId })
       } else {
-        alert("আপলোড ব্যর্থ হয়েছে! Unsigned Preset চেক করুন।")
+        toast.error("আপলোড ব্যর্থ হয়েছে! Unsigned Preset চেক করুন।", { id: toastId })
       }
     } catch (err) {
-      alert("নেটওয়ার্ক ত্রুটি হয়েছে!")
+      toast.error("নেটওয়ার্ক ত্রুটি হয়েছে!", { id: toastId })
     } finally {
       setLoading(false)
     }
@@ -148,11 +157,12 @@ export default function HOME() {
       {
         id: partners.length + 1,
         name: `অংশীদার ${partners.length + 1}`,
-        image: "https://via.placeholder.com/150",
+        image: "https://placehold.co/150",
       },
     ]
     setPartners(newPartnersList)
     saveToDatabase(founders, directors, newPartnersList)
+    toast.success("নতুন অংশীদার যুক্ত করা হয়েছে!")
   }
 
   // অংশীদার মুছে ফেলার জন্য
@@ -161,6 +171,7 @@ export default function HOME() {
       const updatedPartners = partners.filter((_, idx) => idx !== index)
       setPartners(updatedPartners)
       saveToDatabase(founders, directors, updatedPartners)
+      toast.success("অংশীদার মুছে ফেলা হয়েছে!")
     }
   }
 
@@ -201,7 +212,6 @@ export default function HOME() {
                   />
                 </div>
 
-                {/* প্রতিষ্ঠাতা সেকশনে এডমিন মোডের জন্য আপলোড ও নাম পরিবর্তন ইনপুট */}
                 {isAdmin ? (
                   <div className="mt-2 flex flex-col gap-1 w-full max-w-[140px]">
                     <input
@@ -216,6 +226,7 @@ export default function HOME() {
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={loading}
                         onChange={(e) => handleImageUpload(e, "founders", idx)}
                       />
                     </label>
@@ -258,6 +269,7 @@ export default function HOME() {
                         type="file"
                         accept="image/*"
                         className="hidden"
+                        disabled={loading}
                         onChange={(e) => handleImageUpload(e, "directors", idx)}
                       />
                     </label>
@@ -301,6 +313,7 @@ export default function HOME() {
                           type="file"
                           accept="image/*"
                           className="hidden"
+                          disabled={loading}
                           onChange={(e) => handleImageUpload(e, "partners", idx)}
                         />
                       </label>
