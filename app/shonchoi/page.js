@@ -178,7 +178,7 @@ export default function Shonchoi() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-black">
+    <div className="max-w-4xl mx-auto p-4 text-black pt-3">
       {/* Navbar */}
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>

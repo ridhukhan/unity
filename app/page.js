@@ -176,7 +176,7 @@ export default function HOME() {
   }
 
   return (
-    <div className="bg-slate-900 min-h-screen text-white flex flex-col justify-between font-sans pb-24">
+    <div className="bg-slate-900 min-h-screen text-white flex flex-col pt-3 justify-between font-sans pb-24">
       {/* Header */}
       <header className="bg-slate-800 border-b border-slate-700 shadow-lg py-6 text-center px-4">
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-2">
