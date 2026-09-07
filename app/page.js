@@ -225,7 +225,7 @@ export default function Home() {
                 <table className="w-full text-black border-collapse">
                   <thead>
                     {/* Name Header with Edit & Delete Buttons */}
-                    <tr className="border-b-2 border-black bg-gray-100">
+                    <tr className="border-b-2 border-black bg-white">
                       <th colSpan={4} className="border-2 border-black p-3 text-left">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <span className="font-bold text-lg">নাম: {member.name}</span>
@@ -248,7 +248,7 @@ export default function Home() {
                     </tr>
 
                     {/* Biboron Header with Line-break Support */}
-                    <tr className="border-b-2 border-black bg-gray-100">
+                    <tr className="border-b-2 border-black bg-white">
                       <th colSpan={4} className="border-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
                         <span className="font-bold">বিবরণ:</span> {member.biboron}
                       </th>
