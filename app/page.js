@@ -255,7 +255,7 @@ export default function Home() {
                     </tr>
 
                     {/* Column Headers */}
-                    <tr className="border-b-2 border-black bg-gray-200 text-center text-sm md:text-base">
+                    <tr className="border-b-2 border-black bg-white text-center text-sm md:text-base">
                       <th className="border-2 border-black p-2 w-1/4">তারিখ</th>
                       <th className="border-2 border-black p-2 w-1/4">জমা</th>
                       <th className="border-2 border-black p-2 w-1/4">উত্তোলন</th>
