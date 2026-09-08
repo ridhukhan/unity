@@ -63,9 +63,7 @@ export default function AdminLogin() {
           <h1 className="text-2xl sm:text-3xl font-extrabold text-amber-400 tracking-wider">
             ADMIN LOGIN
           </h1>
-          <p className="text-slate-400 text-xs sm:text-sm">
-            অ্যাডমিন প্যানেলে প্রবেশ করতে তথ্য প্রদান করুন
-          </p>
+          
         </div>
 
         {/* Form */}
@@ -112,7 +110,7 @@ export default function AdminLogin() {
                 Submitting...
               </span>
             ) : (
-              "Login to Dashboard"
+              "Login"
             )}
           </button>
         </form>
