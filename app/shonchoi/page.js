@@ -121,7 +121,7 @@ export default function Shonchoi() {
   const addTransactionRow = () => {
     setTransactions([
       ...transactions,
-      { date: "", joma: null, uttolon: 0, comments: "" },
+      { date: "", joma: null, uttolon: null, comments: "" },
     ]);
   };
 
