@@ -61,7 +61,7 @@ export default function HOME() {
   // MongoDB-তে ডাটা সেভ করার ফাংশন
   const saveToDatabase = async (updatedFounders, updatedDirectors, updatedPartners) => {
     try {
-      const res = await fetch("/api/management", {
+      const res = await fetch("/api/managment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
