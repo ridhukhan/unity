@@ -35,7 +35,7 @@ export default function HOME() {
   ])
 
   useEffect(() => {
-    // 1. Auth Endpoint থেকে কুকি চেক করা
+    // Auth Check
     fetch("/api/me")
       .then((res) => res.json())
       .then((data) => {
@@ -45,7 +45,7 @@ export default function HOME() {
       })
       .catch((err) => console.log("Auth verification error:", err))
 
-    // 2. MongoDB থেকে ডাটা ফেচ করা
+    // Management Data Fetch
     fetch("/api/management")
       .then((res) => res.json())
       .then((data) => {
@@ -72,11 +72,14 @@ export default function HOME() {
       })
       const result = await res.json()
       if (!result.success) {
-        toast.error("ডাটাবেজে সেভ করতে সমস্যা হয়েছে!")
+        toast.error(result.message || "ডাটাবেজে সেভ করতে সমস্যা হয়েছে!")
+        return false
       }
+      return true
     } catch (err) {
       console.error("Save error:", err)
-      toast.error("ডাটা সেভ করতে ব্যর্থ হয়েছে!")
+      toast.error("ডাটা সেভ করতে ব্যর্থ হয়েছে!")
+      return false
     }
   }
 
@@ -128,18 +131,22 @@ export default function HOME() {
         let newPartners = [...partners]
 
         if (category === "founders") {
-          newFounders[index].image = imageUrl
+          newFounders[index] = { ...newFounders[index], image: imageUrl }
           setFounders(newFounders)
         } else if (category === "directors") {
-          newDirectors[index].image = imageUrl
+          newDirectors[index] = { ...newDirectors[index], image: imageUrl }
           setDirectors(newDirectors)
         } else if (category === "partners") {
-          newPartners[index].image = imageUrl
+          newPartners[index] = { ...newPartners[index], image: imageUrl }
           setPartners(newPartners)
         }
 
-        await saveToDatabase(newFounders, newDirectors, newPartners)
-        toast.success("ছবি সফলভাবে আপলোড ও সেভ হয়েছে!", { id: toastId })
+        const saved = await saveToDatabase(newFounders, newDirectors, newPartners)
+        if (saved) {
+          toast.success("ছবি সফলভাবে আপলোড ও সেভ হয়েছে!", { id: toastId })
+        } else {
+          toast.error("আপলোড হয়েছে কিন্তু ডাটাবেজ সেভ ব্যর্থ!", { id: toastId })
+        }
       } else {
         toast.error("আপলোড ব্যর্থ হয়েছে! Unsigned Preset চেক করুন।", { id: toastId })
       }
@@ -162,7 +169,7 @@ export default function HOME() {
     ]
     setPartners(newPartnersList)
     saveToDatabase(founders, directors, newPartnersList)
-    toast.success("নতুন অংশীদার যুক্ত করা হয়েছে!")
+    toast.success("নতুন অংশীদার যুক্ত করা হয়েছে!")
   }
 
   // অংশীদার মুছে ফেলার জন্য
@@ -171,7 +178,7 @@ export default function HOME() {
       const updatedPartners = partners.filter((_, idx) => idx !== index)
       setPartners(updatedPartners)
       saveToDatabase(founders, directors, updatedPartners)
-      toast.success("অংশীদার মুছে ফেলা হয়েছে!")
+      toast.success("অংশীদার মুছে ফেলা হয়েছে!")
     }
   }
 
