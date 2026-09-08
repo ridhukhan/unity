@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 export default function Nav() {
   const pathname = usePathname();
-  const router = Router();
+  const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // ইউজার লগইন অবস্থায় আছে কিনা তা চেক করা
