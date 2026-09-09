@@ -225,12 +225,12 @@ export default function Rin() {
           {members.map((member) => {
             const oboshisto = calculateOboshisto(member.ashol, member.transactions);
             return (
-              <div key={member._id} className="overflow-x-auto rounded-lg shadow-md border-2 border-black bg-white">
+              <div key={member._id} className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md">
                 <table className="w-full text-black border-collapse">
                   <thead>
                     {/* Row 1: Name & Actions */}
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-2 border-black p-3 text-center text-xl font-bold">
+                      <th colSpan={3} className="border-2 border-black p-3 text-left text-xl font-bold">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div className="w-full text-center">{member.name}</div>
                           {isAdmin && (
