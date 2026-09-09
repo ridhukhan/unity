@@ -75,7 +75,7 @@ export default function Rin() {
     setLab(0);
     setDate("");
     setBiboron("");
-    setTransactions([{ date: "", joma: 0, comments: "" }]);
+    setTransactions([{ date: "", joma: null, comments: "" }]);
     setIsModalOpen(true);
   };
 
@@ -83,18 +83,18 @@ export default function Rin() {
     if (!isAdmin) return;
     setEditingId(member._id);
     setName(member.name);
-    setAshol(member.ashol || 0);
-    setLab(member.lab || 0);
+    setAshol(member.ashol || null);
+    setLab(member.lab || null);
     setDate(member.date || "");
     setBiboron(member.biboron || "");
     setTransactions(
       member.transactions && member.transactions.length > 0
         ? member.transactions.map((t) => ({
             date: t.date || "",
-            joma: t.joma || 0,
+            joma: t.joma || null,
             comments: t.comments || "",
           }))
-        : [{ date: "", joma: 0, comments: "" }]
+        : [{ date: "", joma: null, comments: "" }]
     );
     setIsModalOpen(true);
   };
@@ -132,7 +132,7 @@ export default function Rin() {
   };
 
   const addTransactionRow = () => {
-    setTransactions([...transactions, { date: "", joma: 0, comments: "" }]);
+    setTransactions([...transactions, { date: "", joma: null, comments: "" }]);
   };
 
   const removeTransactionRow = (index) => {

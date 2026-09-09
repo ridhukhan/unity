@@ -17,7 +17,7 @@ export default function Shonchoi() {
   const [name, setName] = useState("");
   const [biboron, setBiboron] = useState("");
   const [transactions, setTransactions] = useState([
-    { date: "", joma: null, uttolon: 0, comments: "" },
+    { date: "", joma: null, uttolon: null, comments: "" },
   ]);
 
   // Check Admin Authentication Status
@@ -306,7 +306,7 @@ export default function Shonchoi() {
                         colSpan={4}
                         className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
                       >
-                        TOTAL: {currentTotal}
+                        মোট: {currentTotal}
                       </th>
                     </tr>
                   </tfoot>
@@ -448,7 +448,7 @@ export default function Shonchoi() {
               </div>
 
               <div className="bg-yellow-500 text-center font-bold text-lg p-2 border-2 border-black rounded-md mt-3 shadow-sm">
-                TOTAL: {calculateMemberTotal(transactions)}
+                মোট: {calculateMemberTotal(transactions)}
               </div>
 
               <div className="flex justify-end gap-3 mt-5">
