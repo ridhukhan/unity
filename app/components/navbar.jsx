@@ -50,8 +50,8 @@ export default function Nav() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "Shonchoi", href: "/shonchoi" },
-    { name: "About", href: "/about" },
+    { name: "সঞ্চয় হিসাব", href: "/shonchoi" },
+    { name: "ঋণ হিসাব", href: "/rin" },
     { name: "Services", href: "/services" },
     { name: "Contact", href: "/contact" },
   ];
