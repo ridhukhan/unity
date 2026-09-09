@@ -20,6 +20,7 @@ const router=useRouter()
       } else {
         setIsAdmin(false);
         router.push("/")
+        toast.error(" only admin allow this page")
       }
     } catch (err) {
       setIsAdmin(false);
