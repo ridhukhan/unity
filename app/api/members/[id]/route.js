@@ -1,9 +1,27 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
 import Member from "@/models/Member";
+import jwt from "jsonwebtoken";
 
-// Update Member (PUT)
+const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
+
+function verifyAdmin(req) {
+  const token = req.cookies.get("adminToken")?.value;
+  if (!token) return false;
+  try {
+    jwt.verify(token, JWT_SECRET);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+// PUT: শুধুমাত্র অ্যাডমিন আপডেট করতে পারবে
 export async function PUT(req, { params }) {
+  if (!verifyAdmin(req)) {
+    return NextResponse.json({ success: false, error: "অনুমতি নেই! অ্যাডমিন লগইন প্রয়োজন।" }, { status: 401 });
+  }
+
   try {
     await dbConnect();
     const { id } = await params;
@@ -15,10 +33,7 @@ export async function PUT(req, { params }) {
     });
 
     if (!updatedMember) {
-      return NextResponse.json(
-        { success: false, error: "মেম্বার পাওয়া যায়নি" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "মেম্বার পাওয়া যায়নি" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, data: updatedMember }, { status: 200 });
@@ -27,8 +42,12 @@ export async function PUT(req, { params }) {
   }
 }
 
-// Delete Member (DELETE)
+// DELETE: শুধুমাত্র অ্যাডমিন ডিলিট করতে পারবে
 export async function DELETE(req, { params }) {
+  if (!verifyAdmin(req)) {
+    return NextResponse.json({ success: false, error: "অনুমতি নেই! অ্যাডমিন লগইন প্রয়োজন।" }, { status: 401 });
+  }
+
   try {
     await dbConnect();
     const { id } = await params;
@@ -36,10 +55,7 @@ export async function DELETE(req, { params }) {
     const deletedMember = await Member.findByIdAndDelete(id);
 
     if (!deletedMember) {
-      return NextResponse.json(
-        { success: false, error: "মেম্বার পাওয়া যায়নি" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "মেম্বার পাওয়া যায়নি" }, { status: 404 });
     }
 
     return NextResponse.json({ success: true, data: {} }, { status: 200 });
