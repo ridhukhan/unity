@@ -183,7 +183,7 @@ export default function Rin() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-black pt-12">
+    <div className="max-w-4xl mx-auto p-4 text-black pt-18">
       {/* Header */}
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>ঋণ হিসাব</h1>
@@ -301,7 +301,7 @@ export default function Rin() {
 
       {/* POPUP MODAL */}
       {isModalOpen && isAdmin && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 z-50 overflow-y-auto">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 pt-10 z-50 overflow-y-auto">
           <div className="bg-white rounded-lg border-2 border-black w-full max-w-2xl p-5 my-8 max-h-[90vh] overflow-y-auto shadow-2xl">
             <h2 className="text-2xl font-bold text-center mb-4 border-b-2 border-black pb-2">
               {editingId ? "ঋণ তথ্য সম্পাদনা" : "নতুন ঋণ যুক্ত করার ফর্ম"}

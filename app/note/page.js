@@ -83,7 +83,7 @@ const router=useRouter()
   };
 
   return (
-    <div className="w-full h-screen bg-white text-black p-4 flex flex-col pt-12">
+    <div className="w-full h-screen bg-white text-black p-4 flex flex-col pt-24">
       {/* টপ বার (হেডার এবং বাটন) */}
       <div className="flex justify-between items-center bg-yellow-500 border-2 border-black p-3 rounded-lg shadow-md mb-4">
         <h1 className="text-xl md:text-2xl font-bold">নোটপ্যাড (Note)</h1>
