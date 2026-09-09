@@ -234,7 +234,7 @@ export default function Rin() {
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <div className="w-full text-left">নাম:{member.name}</div>
                           {isAdmin && (
-                            <div className="flex gap-2 flex-col fixed">
+                            <div className="flex gap-2 ">
                               <button
                                 onClick={() => handleEdit(member)}
                                 className="bg-blue-500 text-white font-bold text-xs px-2 py-1 rounded border border-black"

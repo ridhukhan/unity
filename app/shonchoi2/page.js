@@ -244,7 +244,7 @@ export default function Shonchoi() {
                           <span className="font-bold text-lg">নাম: {member.name}</span>
                           
                           {isAdmin && (
-                            <div className="flex gap-2 flex-col fixed">
+                            <div className="flex gap-2 ">
                               <button
                                 onClick={() => handleEdit(member)}
                                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
