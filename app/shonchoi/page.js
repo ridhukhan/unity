@@ -61,7 +61,7 @@ export default function Shonchoi() {
     setEditingId(null);
     setName("");
     setBiboron("");
-    setTransactions([{ date: "", joma: null, uttolon: 0, comments: "" }]);
+    setTransactions([{ date: "", joma: null, uttolon: null, comments: "" }]);
     setIsModalOpen(true);
   };
 
@@ -77,11 +77,11 @@ export default function Shonchoi() {
       member.transactions && member.transactions.length > 0
         ? member.transactions.map((tx) => ({
             date: tx.date || "",
-            joma: tx.joma,
-            uttolon: tx.uttolon || 0,
+            joma: tx.joma || null,
+            uttolon: tx.uttolon || null,
             comments: tx.comments || "",
           }))
-        : [{ date: "", joma: null, uttolon: 0, comments: "" }]
+        : [{ date: "", joma: null, uttolon: null, comments: "" }]
     );
     setIsModalOpen(true);
   };
@@ -139,7 +139,7 @@ export default function Shonchoi() {
   const addTransactionRow = () => {
     setTransactions([
       ...transactions,
-      { date: "", joma: null, uttolon: 0, comments: "" },
+      { date: "", joma: null, uttolon: null, comments: "" },
     ]);
   };
 
