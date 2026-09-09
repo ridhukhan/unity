@@ -205,7 +205,7 @@ export default function Shonchoi() {
           {loading ? (
             <span className="text-gray-500">checking...</span>
           ) : (
-            `${calculateGrandTotal()} ৳`
+            `${calculateGrandTotal()} `
           )}
         </h1>
       </div>
@@ -244,7 +244,7 @@ export default function Shonchoi() {
                           <span className="font-bold text-lg">নাম: {member.name}</span>
                           
                           {isAdmin && (
-                            <div className="flex gap-2">
+                            <div className="flex gap-2 flex-col">
                               <button
                                 onClick={() => handleEdit(member)}
                                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
