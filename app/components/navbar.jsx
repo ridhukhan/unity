@@ -58,7 +58,6 @@ export default function Nav() {
     { name: "সঞ্চয় ৩", href: "/shonchoi3" },
     { name: "ঋণ ৩", href: "/rin3" },
 
-    { name: " ", href: "/rin" },
 
     { name: "Note", href: "/note" },
     { name: "Contact", href: "/contact" },

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/lib/mongodb";
-import Rinmember from "@/models/Rinmember";
+import Rinmember3 from "@/models/Rinmember3";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
@@ -19,7 +19,7 @@ function verifyAdmin(req) {
 export async function GET() {
   try {
     await dbConnect();
-    const members = await Rinmember.find({}).sort({ createdAt: -1 });
+    const members = await Rinmember3.find({}).sort({ createdAt: -1 });
     return NextResponse.json({ success: true, data: members }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -34,7 +34,7 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const newMember = await Rinmember.create(body);
+    const newMember = await Rinmember3.create(body);
     return NextResponse.json({ success: true, data: newMember }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
