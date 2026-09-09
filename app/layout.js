@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Hatiya Unity",
+  title: "Radha krishna",
   description: "this is a Strong unity",
 };
 
