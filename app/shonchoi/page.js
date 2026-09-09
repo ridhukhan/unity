@@ -244,8 +244,8 @@ export default function Shonchoi() {
           {members.map((member) => {
             const currentTotal = calculateMemberTotal(member.transactions || []);
             return (
-              <div key={member._id} className="overflow-x-auto rounded-lg shadow-md border-2 border-black bg-white">
-                <table className="w-full text-black border-collapse">
+              <div key={member._id} className="w-full text-shadow-md border-2 border-black bg-white">
+                <table className="overflow-x-auto rounded-lg black border-collapse">
                   <thead>
                     <tr className="border-b-2 border-black bg-white">
                       <th colSpan={4} className="border-2 border-black p-3 text-left">
