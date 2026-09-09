@@ -60,6 +60,8 @@ export default function Nav() {
 
 
     { name: "Note", href: "/note" },
+    { name: "Note 2", href: "/note2" },
+
     { name: "Contact", href: "/contact" },
   ];
 
