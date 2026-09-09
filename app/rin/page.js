@@ -105,7 +105,7 @@ export default function Rin() {
       const res = await fetch(`/api/rinmembers/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
-        toast.success("সফলভাবে মুছে ফেলা হয়েছে");
+        toast.success("Delete successfully");
         fetchMembers();
       } else {
         toast.error("ত্রুটি: " + data.error);
@@ -119,9 +119,9 @@ export default function Rin() {
 
   const handleDelete = (id) => {
     if (!isAdmin) return;
-    toast("আপনি কি নিশ্চিত?", {
-      action: { label: "হ্যাঁ", onClick: () => confirmDelete(id) },
-      cancel: { label: "বাতিল" },
+    toast("are you sure", {
+      action: { label: "yes", onClick: () => confirmDelete(id) },
+      cancel: { label: "no" },
     });
   };
 
@@ -137,7 +137,7 @@ export default function Rin() {
 
   const removeTransactionRow = (index) => {
     if (transactions.length === 1) {
-      toast.warning("কমপক্ষে ১টি ইনপুট সারি প্রয়োজন!");
+      toast.warning("atleast one input needed");
       return;
     }
     setTransactions(transactions.filter((_, i) => i !== index));
@@ -169,14 +169,14 @@ export default function Rin() {
 
       const data = await res.json();
       if (data.success) {
-        toast.success(editingId ? "আপডেট সফল হয়েছে" : "নতুন তথ্য সংরক্ষিত হয়েছে");
+        toast.success(editingId ? "update success" : "নতুন তথ্য সংরক্ষিত হয়েছে");
         setIsModalOpen(false);
         fetchMembers();
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
     } catch (err) {
-      toast.error("সংরক্ষণে সমস্যা হয়েছে!");
+      toast.error("had a problem!");
     } finally {
       setSubmitting(false);
     }
@@ -193,7 +193,7 @@ export default function Rin() {
         <h1>
           অবশিষ্ট ঋণ:{" "}
           {loading ? (
-            <span className="text-gray-500">লোডিং...</span>
+            <span className="text-gray-500">loading...</span>
           ) : (
             `${calculateGrandOboshisto()} ৳`
           )}
@@ -206,7 +206,7 @@ export default function Rin() {
           <button
             onClick={handleOpenAddModal}
             className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-14 h-14 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-transform hover:scale-105"
-            title="নতুন তথ্য যোগ করুন"
+            title="add a new data"
           >
             +
           </button>
@@ -215,10 +215,10 @@ export default function Rin() {
 
       {/* Members Cards/Tables */}
       {loading ? (
-        <div className="text-center py-10 font-bold text-lg">ডেটা লোড হচ্ছে...</div>
+        <div className="text-center py-10 font-bold text-lg">data loading...</div>
       ) : members.length === 0 ? (
         <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4 mt-6">
-          কোনো তথ্য পাওয়া যায়নি
+          no data found
         </div>
       ) : (
         <div className="space-y-8 mt-6">
