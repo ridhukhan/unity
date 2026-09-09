@@ -232,7 +232,7 @@ export default function Rin() {
                     <tr className="border-b-2 border-black bg-white">
                       <th colSpan={3} className="border-2 border-black p-3 text-left text-xl font-bold">
                         <div className="flex justify-between items-center flex-wrap gap-2">
-                          <div className="w-full text-left">নাম ঃ{member.name}</div>
+                          <div className="w-full text-left">নাম:{member.name}</div>
                           {isAdmin && (
                             <div className="flex gap-2 absolute right-6">
                               <button
