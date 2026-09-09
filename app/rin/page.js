@@ -23,7 +23,7 @@ export default function Rin() {
 
   const checkAdminStatus = async () => {
     try {
-      const res = await fetch("/api/admin/check");
+      const res = await fetch("/api/me");
       const data = await res.json();
       setIsAdmin(!!data.isAdmin);
     } catch (err) {
@@ -186,7 +186,7 @@ export default function Rin() {
     <div className="max-w-4xl mx-auto p-4 text-black pt-12">
       {/* Header */}
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
-        <h1>প্রধান হিসাব</h1>
+        <h1>ঋণ হিসাব</h1>
       </nav>
 
       <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
