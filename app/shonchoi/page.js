@@ -6,21 +6,18 @@ import { toast } from "sonner";
 export default function Shonchoi() {
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false); // Admin Status State
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Edit State
   const [editingId, setEditingId] = useState(null);
 
-  // Form State
   const [name, setName] = useState("");
   const [biboron, setBiboron] = useState("");
   const [transactions, setTransactions] = useState([
     { date: "", joma: null, uttolon: null, comments: "" },
   ]);
 
-  // Check Admin Authentication Status
   const checkAdminStatus = async () => {
     try {
       const res = await fetch("/api/me"); 
@@ -35,7 +32,6 @@ export default function Shonchoi() {
     }
   };
 
-  // Fetch Members from Database
   const fetchMembers = async () => {
     setLoading(true);
     try {
@@ -57,7 +53,6 @@ export default function Shonchoi() {
     fetchMembers();
   }, []);
 
-  // Open Modal for New Member
   const handleOpenAddModal = () => {
     if (!isAdmin) {
       toast.error("শুধুমাত্র অ্যাডমিন নতুন মেম্বার যুক্ত করতে পারবেন!");
@@ -70,7 +65,6 @@ export default function Shonchoi() {
     setIsModalOpen(true);
   };
 
-  // Open Modal for Editing Existing Member
   const handleEdit = (member) => {
     if (!isAdmin) {
       toast.error("শুধুমাত্র অ্যাডমিন পরিবর্তন করতে পারবেন!");
@@ -92,7 +86,6 @@ export default function Shonchoi() {
     setIsModalOpen(true);
   };
 
-  // Actual Delete Logic
   const confirmDelete = async (id) => {
     setLoading(true);
     try {
@@ -114,7 +107,6 @@ export default function Shonchoi() {
     }
   };
 
-  // Delete Member Toast Confirmation
   const handleDeleteMember = (id) => {
     if (!isAdmin) {
       toast.error("শুধুমাত্র অ্যাডমিন ডিলিট করতে পারবেন!");
@@ -218,7 +210,6 @@ export default function Shonchoi() {
         </h1>
       </div>
 
-      {/* শুধুমাত্র অ্যাডমিন হলে (+) বাটন দেখাবে */}
       {isAdmin && (
         <div className="flex justify-center my-6">
           <button
@@ -244,15 +235,14 @@ export default function Shonchoi() {
           {members.map((member) => {
             const currentTotal = calculateMemberTotal(member.transactions || []);
             return (
-              <div key={member._id} className="w-full text-shadow-md border-2 border-black bg-white">
-                <table className="overflow-x-auto rounded-lg black border-collapse">
+              <div key={member._id} className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md">
+                <table className="w-full border-collapse">
                   <thead>
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={4} className="border-2 border-black p-3 text-left">
+                      <th colSpan={4} className="border-b-2 border-black p-3 text-left">
                         <div className="flex justify-between items-center flex-wrap gap-2">
                           <span className="font-bold text-lg">নাম: {member.name}</span>
                           
-                          {/* শুধুমাত্র অ্যাডমিন হলে Edit & Delete বাটন দেখাবে */}
                           {isAdmin && (
                             <div className="flex gap-2">
                               <button
@@ -274,26 +264,26 @@ export default function Shonchoi() {
                     </tr>
 
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={4} className="border-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
+                      <th colSpan={4} className="border-b-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
                         <span className="font-bold">বিবরণ:</span> {member.biboron}
                       </th>
                     </tr>
 
-                    <tr className="border-b-2 border-black bg-white text-center text-sm md:text-base">
-                      <th className="border-2 border-black p-2 w-1/4">তারিখ</th>
-                      <th className="border-2 border-black p-2 w-1/4">জমা</th>
-                      <th className="border-2 border-black p-2 w-1/4">উত্তোলন</th>
-                      <th className="border-2 border-black p-2 w-1/4">Comments</th>
+                    <tr className="border-b-2 border-black bg-gray-100 text-center text-sm md:text-base">
+                      <th className="border-r-2 border-black p-2 w-1/4">তারিখ</th>
+                      <th className="border-r-2 border-black p-2 w-1/4">জমা</th>
+                      <th className="border-r-2 border-black p-2 w-1/4">উত্তোলন</th>
+                      <th className="p-2 w-1/4">Comments</th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {(member.transactions || []).map((tx, idx) => (
                       <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
-                        <td className="border-2 border-black p-2">{tx.date}</td>
-                        <td className="border-2 border-black p-2">{tx.joma}</td>
-                        <td className="border-2 border-black p-2">{tx.uttolon}</td>
-                        <td className="border-2 border-black p-2 whitespace-pre-wrap text-left md:text-center">
+                        <td className="border-r-2 border-black p-2">{tx.date}</td>
+                        <td className="border-r-2 border-black p-2">{tx.joma}</td>
+                        <td className="border-r-2 border-black p-2">{tx.uttolon}</td>
+                        <td className="p-2 whitespace-pre-wrap text-left md:text-center">
                           {tx.comments}
                         </td>
                       </tr>
