@@ -288,7 +288,7 @@ export default function Rin() {
                         colSpan={3}
                         className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
                       >
-                        অবশিষ্ট =&gt; {oboshisto}
+                        অবশিষ্ট : {oboshisto}
                       </th>
                     </tr>
                   </tfoot>
