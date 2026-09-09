@@ -52,7 +52,7 @@ export default function Nav() {
     { name: "Home", href: "/" },
     { name: "সঞ্চয় হিসাব", href: "/shonchoi" },
     { name: "ঋণ হিসাব", href: "/rin" },
-    { name: "Services", href: "/services" },
+    { name: "খাতা", href: "/note" },
     { name: "Contact", href: "/contact" },
   ];
 
