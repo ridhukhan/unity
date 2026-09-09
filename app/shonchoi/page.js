@@ -23,7 +23,7 @@ export default function Shonchoi() {
   // Check Admin Authentication Status
   const checkAdminStatus = async () => {
     try {
-      const res = await fetch("/api/admin/check"); // আপনার অ্যাডমিন চেক রুট অনুযায়ী ইউআরএল অ্যাডজাস্ট করুন
+      const res = await fetch("/api/me"); 
       const data = await res.json();
       if (data.isAdmin) {
         setIsAdmin(true);
