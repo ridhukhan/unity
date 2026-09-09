@@ -194,7 +194,7 @@ export default function Shonchoi() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-black pt-12">
+    <div className="max-w-4xl mx-auto p-4 text-black pt-20">
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
@@ -244,7 +244,11 @@ export default function Shonchoi() {
                           <span className="font-bold text-lg">নাম: {member.name}</span>
                           
                           {isAdmin && (
+<<<<<<< HEAD
                             <div className="flex gap-2 flex-col fixed">
+=======
+                            <div className="flex gap-2 flex-col">
+>>>>>>> d0cd2f32c1e8b8a448266dccc88c1ea3ef5e8eb5
                               <button
                                 onClick={() => handleEdit(member)}
                                 className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
