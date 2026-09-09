@@ -50,9 +50,17 @@ export default function Nav() {
 
   const navLinks = [
     { name: "Home", href: "/" },
-    { name: "সঞ্চয় হিসাব", href: "/shonchoi" },
-    { name: "ঋণ হিসাব", href: "/rin" },
-    { name: "খাতা", href: "/note" },
+    { name: "সঞ্চয় ", href: "/shonchoi" },
+    { name: "ঋণ ", href: "/rin" },
+    { name: "সঞ্চয় ২ ", href: "/shonchoi2" },
+    { name: "ঋণ ২", href: "/rin2" },
+
+    { name: "সঞ্চয় ৩", href: "/shonchoi3" },
+    { name: "ঋণ ৩", href: "/rin3" },
+
+    { name: " ", href: "/rin" },
+
+    { name: "Note", href: "/note" },
     { name: "Contact", href: "/contact" },
   ];
 

@@ -34,7 +34,7 @@ export default function Rin() {
   const fetchMembers = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/rinmembers");
+      const res = await fetch("/api/rinmembers2");
       const data = await res.json();
       if (data.success) {
         setMembers(data.data);
@@ -102,7 +102,7 @@ export default function Rin() {
   const confirmDelete = async (id) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/rinmembers/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/rinmembers2/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         toast.success("Delete successfully");
@@ -151,7 +151,7 @@ export default function Rin() {
     }
     setSubmitting(true);
     try {
-      const url = editingId ? `/api/rinmembers/${editingId}` : "/api/rinmembers";
+      const url = editingId ? `/api/rinmembers2/${editingId}` : "/api/rinmembers2";
       const method = editingId ? "PUT" : "POST";
 
       const res = await fetch(url, {
