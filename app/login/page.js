@@ -113,6 +113,11 @@ export default function AdminLogin() {
               "Login"
             )}
           </button>
+          <Link href={"/forgot password"}>
+          
+          <p className="justify-center pt-3 bg-amber-700 border-b-2 border-b-black">change and forgot password??</p>
+          
+          </Link>
         </form>
 
       </div>
