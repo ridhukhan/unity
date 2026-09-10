@@ -115,7 +115,7 @@ export default function AdminLogin() {
           </button>
           <Link href={"/forgotpass"}>
           
-          <p className="justify-center pt-3 bg-amber-700 border-b-2 border-b-black">change and forgot password??</p>
+          <p className="justify-center pt-1 text-amber-400 font-bold">change and forgot password??</p>
           
           </Link>
         </form>
