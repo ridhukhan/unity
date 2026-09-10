@@ -230,20 +230,20 @@ export default function Rin() {
                   <thead>
                     {/* Row 1: Name & Actions */}
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-2 border-black p-3 text-left text-xl font-bold">
+                      <th colSpan={3} className="border-b-2 border-black p-3 text-left">
                         <div className="flex justify-between items-center flex-wrap gap-2">
-                          <div className="w-full text-left">নাম:{member.name}</div>
+                          <span className="font-bold text-lg">নাম: {member.name}</span>
                           {isAdmin && (
                             <div className="flex gap-2">
                               <button
                                 onClick={() => handleEdit(member)}
-                                className="bg-blue-500 text-white font-bold text-xs px-2 py-1 rounded border border-black"
+                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
                               >
                                 Edit
                               </button>
                               <button
                                 onClick={() => handleDelete(member._id)}
-                                className="bg-red-500 text-white font-bold text-xs px-2 py-1 rounded border border-black"
+                                className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
                               >
                                 Delete
                               </button>
@@ -254,29 +254,29 @@ export default function Rin() {
                     </tr>
                     {/* Row 2: Ashol, Lab, Date */}
                     <tr className="border-b-2 border-black bg-white text-sm md:text-base">
-                      <th className="border-2 border-black p-2 w-1/3">আসল - {member.ashol}</th>
-                      <th className="border-2 border-black p-2 w-1/3">লাভ - {member.lab}</th>
-                      <th className="border-2 border-black p-2 w-1/3">তারিখ - {member.date}</th>
+                      <th className="border-r-2 border-black p-2 w-1/3 text-center">আসল - {member.ashol}</th>
+                      <th className="border-r-2 border-black p-2 w-1/3 text-center">লাভ - {member.lab}</th>
+                      <th className="p-2 w-1/3 text-center">তারিখ - {member.date}</th>
                     </tr>
                     {/* Row 3: Biboron */}
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-2 border-black p-3 text-left font-normal whitespace-pre-wrap">
+                      <th colSpan={3} className="border-b-2 border-black p-3 text-left font-normal whitespace-pre-wrap">
                         <span className="font-bold">বিবরণ:</span> {member.biboron}
                       </th>
                     </tr>
                     {/* Row 4: Transaction Headers */}
                     <tr className="border-b-2 border-black bg-gray-100 text-center text-sm md:text-base font-bold">
-                      <th className="border-2 border-black p-2 w-1/3">তারিখ</th>
-                      <th className="border-2 border-black p-2 w-1/3">আদায়</th>
-                      <th className="border-2 border-black p-2 w-1/3">comment</th>
+                      <th className="border-r-2 border-black p-2 w-1/3">তারিখ</th>
+                      <th className="border-r-2 border-black p-2 w-1/3">আদায়</th>
+                      <th className="p-2 w-1/3">comment</th>
                     </tr>
                   </thead>
                   <tbody>
                     {(member.transactions || []).map((tx, idx) => (
                       <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
-                        <td className="border-2 border-black p-2">{tx.date}</td>
-                        <td className="border-2 border-black p-2">{tx.joma}</td>
-                        <td className="border-2 border-black p-2 text-left md:text-center whitespace-pre-wrap">
+                        <td className="border-r-2 border-black p-2">{tx.date}</td>
+                        <td className="border-r-2 border-black p-2">{tx.joma}</td>
+                        <td className="p-2 text-left md:text-center whitespace-pre-wrap">
                           {tx.comments}
                         </td>
                       </tr>
@@ -438,7 +438,7 @@ export default function Rin() {
                   type="button"
                   onClick={addTransactionRow}
                   className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-xl px-4 py-1 rounded-full border-2 border-black cursor-pointer shadow-sm"
-                  title="আদায় ইনপুট যোগ করুন"
+                  title="আদায় ইনপুট যোগ করুন"
                 >
                   +
                 </button>
