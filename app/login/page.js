@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-
+import Link from "next/link"
 export default function AdminLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -113,7 +113,7 @@ export default function AdminLogin() {
               "Login"
             )}
           </button>
-          <Link href={"/forgot password"}>
+          <Link href={"/forgotpass"}>
           
           <p className="justify-center pt-3 bg-amber-700 border-b-2 border-b-black">change and forgot password??</p>
           
