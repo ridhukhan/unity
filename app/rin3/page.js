@@ -213,7 +213,6 @@ export default function Rin() {
         </div>
       )}
 
-      {/* Members Cards/Tables */}
       {loading ? (
         <div className="text-center py-10 font-bold text-lg">data loading...</div>
       ) : members.length === 0 ? (
@@ -230,14 +229,11 @@ export default function Rin() {
                   <thead>
                     {/* Row 1: Name & Actions */}
                     <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-2 border-black p-3 text-left text-xl font-bold">
+                      <th colSpan={3} className="border-b-2 border-black p-3 text-left">
                         <div className="flex justify-between items-center flex-wrap gap-2">
-                          <div className="w-full text-left">নাম:{member.name}</div>
+                          <span className="font-bold text-lg">নাম:{member.name}</span>
                           {isAdmin && (
-
-
                             <div className="flex gap-2">
-
                               <button
                                 onClick={() => handleEdit(member)}
                                 className="bg-blue-500 text-white font-bold text-xs px-2 py-1 rounded border border-black"
