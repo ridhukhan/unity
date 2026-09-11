@@ -10,7 +10,6 @@ export default function Nav() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ইউজার লগইন অবস্থায় আছে কিনা তা চেক করা
   useEffect(() => {
     fetch("/api/me")
       .then((res) => res.json())
@@ -25,9 +24,7 @@ export default function Nav() {
         console.error("Auth check error:", err);
         setIsLoggedIn(false);
       });
-  }, [pathname]); // রাউট পরিবর্তন হলে আবার চেক করবে
-
-  // লগআউট হ্যান্ডলার ফাংশন
+  }, [pathname]); 
   const handleLogout = async () => {
     try {
       const res = await fetch("/api/logout", {
