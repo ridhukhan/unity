@@ -56,7 +56,7 @@ export default function Shonchoi() {
 
   // Drag and Drop ও DB Save হ্যান্ডলার
   const handleOnDragEnd = async (result) => {
-    if (!result.destination) return;
+    if (!result.destination || !isAdmin) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
@@ -65,19 +65,17 @@ export default function Shonchoi() {
     // ১. ক্লায়েন্ট সাইড স্টেট সাথে সাথে আপডেট
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা
+    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা (/api/members PUT API-তে)
     try {
-      const res = await fetch("/api/members/reorder", {
+      const res = await fetch("/api/members", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reorderedMembers: items }),
       });
 
       const data = await res.json();
-      if (data.success) {
-        toast.success("নতুন পজিশন ডাটাবেজে সেভ হয়েছে!");
-      } else {
-        toast.error("পজিশন আপডেট করতে সমস্যা হয়েছে!");
+      if (!data.success) {
+        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
         fetchMembers(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
       }
     } catch (err) {
@@ -280,6 +278,7 @@ export default function Shonchoi() {
                       key={member._id}
                       draggableId={member._id.toString()}
                       index={index}
+                      isDragDisabled={!isAdmin} // অ্যাডমিন না হলে ড্র্যাগ ডিজেবল থাকবে
                     >
                       {(provided) => (
                         <div
@@ -348,19 +347,24 @@ export default function Shonchoi() {
                                   className="border-t-2 border-black p-3 bg-yellow-500 font-bold text-lg"
                                 >
                                   <div className="flex items-center justify-between px-2">
-                                    <div
-                                      {...provided.dragHandleProps}
-                                      className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex items-center justify-center border border-black/20"
-                                      title="Drag to reorder"
-                                    >
-                                      <svg
-                                        className="w-6 h-6 text-black"
-                                        fill="currentColor"
-                                        viewBox="0 0 24 24"
+                                    {/* শুধুমাত্র অ্যাডমিন হলেই ড্র্যাগ ডট আইকনটি দেখা যাবে */}
+                                    {isAdmin ? (
+                                      <div
+                                        {...provided.dragHandleProps}
+                                        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex items-center justify-center border border-black/20"
+                                        title="Drag to reorder"
                                       >
-                                        <path d="M8.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7-13a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
-                                      </svg>
-                                    </div>
+                                        <svg
+                                          className="w-6 h-6 text-black"
+                                          fill="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path d="M8.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm7-13a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zm0 6.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
+                                        </svg>
+                                      </div>
+                                    ) : (
+                                      <div className="w-6 h-6" /> // লেআউট ঠিক রাখার জন্য খালি ডাইভ
+                                    )}
 
                                     <span className="mx-auto">
                                       মোট: {currentTotal}

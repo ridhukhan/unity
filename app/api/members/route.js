@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback_secret_key_12345";
 
-// অ্যাডমিন যাচাই করার হেলপার ফাংশন
 function verifyAdmin(req) {
   const token = req.cookies.get("adminToken")?.value;
   if (!token) return false;
@@ -17,11 +16,9 @@ function verifyAdmin(req) {
   }
 }
 
-// GET: মেম্বারদের লিস্ট order অনুযায়ী সাজিয়ে নিয়ে আসা
 export async function GET() {
   try {
     await dbConnect();
-    // order অনুযায়ী ascending (১, ২, ৩...) অর্ডারে সাজিয়ে আনা হচ্ছে
     const members = await Member.find({}).sort({ order: 1 });
     return NextResponse.json({ success: true, data: members }, { status: 200 });
   } catch (error) {
@@ -29,7 +26,7 @@ export async function GET() {
   }
 }
 
-// POST: নতুন মেম্বার তৈরি করা
+// POST: শুধুমাত্র অ্যাডমিন নতুন মেম্বার তৈরি করতে পারবে
 export async function POST(req) {
   if (!verifyAdmin(req)) {
     return NextResponse.json({ success: false, error: "অনুমতি নেই! অ্যাডমিন লগইন প্রয়োজন।" }, { status: 401 });
@@ -39,7 +36,6 @@ export async function POST(req) {
     await dbConnect();
     const body = await req.json();
 
-    // নতুন মেম্বারের জন্য ডিফল্ট order নির্ধারণ (সবশেষে যুক্ত হবে)
     const count = await Member.countDocuments();
     const newMemberData = { ...body, order: count };
 
@@ -47,5 +43,35 @@ export async function POST(req) {
     return NextResponse.json({ success: true, data: newMember }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+  }
+}
+
+// PUT: ড্র্যাগ অ্যান্ড ড্রপের পর নতুন অর্ডার আপডেট করা
+export async function PUT(req) {
+  if (!verifyAdmin(req)) {
+    return NextResponse.json({ success: false, error: "অনুমতি নেই! অ্যাডমিন লগইন প্রয়োজন।" }, { status: 401 });
+  }
+
+  try {
+    await dbConnect();
+    const body = await req.json();
+    const reorderedMembers = body.reorderedMembers || body;
+
+    if (!Array.isArray(reorderedMembers)) {
+      return NextResponse.json({ success: false, error: "Invalid data format" }, { status: 400 });
+    }
+
+    const bulkOps = reorderedMembers.map((member, index) => ({
+      updateOne: {
+        filter: { _id: member._id },
+        update: { $set: { order: index } },
+      },
+    }));
+
+    await Member.bulkWrite(bulkOps);
+
+    return NextResponse.json({ success: true, message: "Order updated successfully" }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
