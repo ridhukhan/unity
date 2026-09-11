@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+} from "@hello-pangea/dnd";
 
 export default function Rin() {
   const [members, setMembers] = useState([]);
@@ -51,7 +56,43 @@ export default function Rin() {
     fetchMembers();
   }, []);
 
-  // হিসাব সম্পর্কিত গণনা
+  // Drag and Drop Handler (@hello-pangea/dnd)
+  const handleOnDragEnd = async (result) => {
+    if (!result.destination) return;
+
+    const items = Array.from(members);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    // স্টেট আপডেট
+    setMembers(items);
+
+    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
+    try {
+      const res = await fetch("/api/rinmembers", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item, index) => ({
+            _id: item._id,
+            serial: index + 1,
+          })),
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("ক্রম পরিবর্তন করা হয়েছে");
+      } else {
+        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
+        fetchMembers();
+      }
+    } catch (err) {
+      toast.error("সার্ভার সমস্যা!");
+      fetchMembers();
+    }
+  };
+
+  // গণনা
   const calculateTotalAdai = (txList = []) => {
     return txList.reduce((acc, curr) => acc + (Number(curr.joma) || 0), 0);
   };
@@ -213,7 +254,7 @@ export default function Rin() {
         </div>
       )}
 
-      {/* Members Cards/Tables */}
+      {/* DragDropContext for hello-pangea/dnd */}
       {loading ? (
         <div className="text-center py-10 font-bold text-lg">data loading...</div>
       ) : members.length === 0 ? (
@@ -221,82 +262,126 @@ export default function Rin() {
           no data found
         </div>
       ) : (
-        <div className="space-y-8 mt-6">
-          {members.map((member) => {
-            const oboshisto = calculateOboshisto(member.ashol, member.transactions);
-            return (
-              <div key={member._id} className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md">
-                <table className="w-full text-black border-collapse">
-                  <thead>
-                    {/* Row 1: Name & Actions */}
-                    <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-b-2 border-black p-3 text-left">
-                        <div className="flex justify-between items-center flex-wrap gap-2">
-                          <span className="font-bold text-lg">নাম: {member.name}</span>
-                          {isAdmin && (
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => handleEdit(member)}
-                                className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDelete(member._id)}
-                                className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          )}
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          <Droppable droppableId="rinmembers-list">
+            {(provided) => (
+              <div
+                {...provided.droppableProps}
+                ref={provided.innerRef}
+                className="space-y-8 mt-6"
+              >
+                {members.map((member, index) => {
+                  const oboshisto = calculateOboshisto(member.ashol, member.transactions);
+                  return (
+                    <Draggable
+                      key={member._id}
+                      draggableId={member._id.toString()}
+                      index={index}
+                      isDragDisabled={!isAdmin}
+                    >
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          className={`w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md transition-shadow ${
+                            snapshot.isDragging ? "shadow-2xl border-yellow-500" : ""
+                          }`}
+                        >
+                          <table className="w-full text-black border-collapse">
+                            <thead>
+                              {/* Row 1: Drag handle dots, Name & Actions */}
+                              <tr className="border-b-2 border-black bg-white">
+                                <th colSpan={3} className="border-b-2 border-black p-3 text-left">
+                                  <div className="flex justify-between items-center flex-wrap gap-2">
+                                    <div className="flex items-center gap-2">
+                                      {/* ডট গ্রিপ আইকন ড্র্যাগ করার জন্য */}
+                                      {isAdmin && (
+                                        <div
+                                          {...provided.dragHandleProps}
+                                          className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded touch-none flex items-center"
+                                          title="ড্র্যাগ করে সরান"
+                                        >
+                                          <svg
+                                            className="w-6 h-6 text-gray-600"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M7 4a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0zM7 16a2 2 0 11-4 0 2 2 0 014 0zM17 4a2 2 0 11-4 0 2 2 0 014 0zM17 10a2 2 0 11-4 0 2 2 0 014 0zM17 16a2 2 0 11-4 0 2 2 0 014 0z" />
+                                          </svg>
+                                        </div>
+                                      )}
+                                      <span className="font-bold text-lg">নাম: {member.name}</span>
+                                    </div>
+                                    {isAdmin && (
+                                      <div className="flex gap-2">
+                                        <button
+                                          onClick={() => handleEdit(member)}
+                                          className="bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
+                                        >
+                                          Edit
+                                        </button>
+                                        <button
+                                          onClick={() => handleDelete(member._id)}
+                                          className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
+                                        >
+                                          Delete
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </th>
+                              </tr>
+                              {/* Row 2: Ashol, Lab, Date */}
+                              <tr className="border-b-2 border-black bg-white text-sm md:text-base">
+                                <th className="border-r-2 border-black p-2 w-1/3 text-center">আসল - {member.ashol}</th>
+                                <th className="border-r-2 border-black p-2 w-1/3 text-center">লাভ - {member.lab}</th>
+                                <th className="p-2 w-1/3 text-center">তারিখ - {member.date}</th>
+                              </tr>
+                              {/* Row 3: Biboron */}
+                              <tr className="border-b-2 border-black bg-white">
+                                <th colSpan={3} className="border-b-2 border-black p-3 text-left font-normal whitespace-pre-wrap">
+                                  <span className="font-bold">বিবরণ:</span> {member.biboron}
+                                </th>
+                              </tr>
+                              {/* Row 4: Transaction Headers */}
+                              <tr className="border-b-2 border-black bg-gray-100 text-center text-sm md:text-base font-bold">
+                                <th className="border-r-2 border-black p-2 w-1/3">তারিখ</th>
+                                <th className="border-r-2 border-black p-2 w-1/3">আদায়</th>
+                                <th className="p-2 w-1/3">comment</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {(member.transactions || []).map((tx, idx) => (
+                                <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
+                                  <td className="border-r-2 border-black p-2">{tx.date}</td>
+                                  <td className="border-r-2 border-black p-2">{tx.joma}</td>
+                                  <td className="p-2 text-left md:text-center whitespace-pre-wrap">
+                                    {tx.comments}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                            <tfoot>
+                              <tr>
+                                <th
+                                  colSpan={3}
+                                  className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
+                                >
+                                  অবশিষ্ট : {oboshisto}
+                                </th>
+                              </tr>
+                            </tfoot>
+                          </table>
                         </div>
-                      </th>
-                    </tr>
-                    {/* Row 2: Ashol, Lab, Date */}
-                    <tr className="border-b-2 border-black bg-white text-sm md:text-base">
-                      <th className="border-r-2 border-black p-2 w-1/3 text-center">আসল - {member.ashol}</th>
-                      <th className="border-r-2 border-black p-2 w-1/3 text-center">লাভ - {member.lab}</th>
-                      <th className="p-2 w-1/3 text-center">তারিখ - {member.date}</th>
-                    </tr>
-                    {/* Row 3: Biboron */}
-                    <tr className="border-b-2 border-black bg-white">
-                      <th colSpan={3} className="border-b-2 border-black p-3 text-left font-normal whitespace-pre-wrap">
-                        <span className="font-bold">বিবরণ:</span> {member.biboron}
-                      </th>
-                    </tr>
-                    {/* Row 4: Transaction Headers */}
-                    <tr className="border-b-2 border-black bg-gray-100 text-center text-sm md:text-base font-bold">
-                      <th className="border-r-2 border-black p-2 w-1/3">তারিখ</th>
-                      <th className="border-r-2 border-black p-2 w-1/3">আদায়</th>
-                      <th className="p-2 w-1/3">comment</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(member.transactions || []).map((tx, idx) => (
-                      <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
-                        <td className="border-r-2 border-black p-2">{tx.date}</td>
-                        <td className="border-r-2 border-black p-2">{tx.joma}</td>
-                        <td className="p-2 text-left md:text-center whitespace-pre-wrap">
-                          {tx.comments}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <th
-                        colSpan={3}
-                        className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
-                      >
-                        অবশিষ্ট : {oboshisto}
-                      </th>
-                    </tr>
-                  </tfoot>
-                </table>
+                      )}
+                    </Draggable>
+                  );
+                })}
+                {provided.placeholder}
               </div>
-            );
-          })}
-        </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       )}
 
       {/* POPUP MODAL */}
@@ -363,7 +448,7 @@ export default function Rin() {
                 />
               </div>
 
-              {/* Transactions Dynamic Rows */}
+              {/* Dynamic Rows */}
               <div className="overflow-x-auto border-2 border-black rounded-lg mt-4">
                 <table className="w-full text-center border-collapse">
                   <thead>

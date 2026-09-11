@@ -30,6 +30,8 @@ const memberSchema = new mongoose.Schema(
     },
     transactions: [transactionSchema],
   },
+    order: { type: Number, default: 0 },
+
   { timestamps: true }
 );
 

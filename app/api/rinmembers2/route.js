@@ -19,7 +19,8 @@ function verifyAdmin(req) {
 export async function GET() {
   try {
     await dbConnect();
-    const members = await Rinmember2.find({}).sort({ createdAt: -1 });
+    // serial অনুযায়ী ascending সাজানো হবে
+    const members = await Rinmember2.find({}).sort({ serial: 1, createdAt: -1 });
     return NextResponse.json({ success: true, data: members }, { status: 200 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -34,9 +35,42 @@ export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const newMember = await Rinmember2.create(body);
+
+    // নতুন সদস্যের জন্য সর্বোচ্চ serial নম্বর নির্ধারণ
+    const count = await Rinmember2.countDocuments();
+    const newMember = await Rinmember2.create({
+      ...body,
+      serial: count + 1,
+    });
+
     return NextResponse.json({ success: true, data: newMember }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+  }
+}
+
+// Reorder / Drag and Drop Update Endpoint
+export async function PUT(req) {
+  if (!verifyAdmin(req)) {
+    return NextResponse.json({ success: false, error: "অনুমতি নেই!" }, { status: 401 });
+  }
+
+  try {
+    await dbConnect();
+    const { items } = await req.json(); // Array of { _id, serial }
+
+    if (Array.isArray(items)) {
+      const bulkOps = items.map((item, index) => ({
+        updateOne: {
+          filter: { _id: item._id },
+          update: { serial: index + 1 },
+        },
+      }));
+      await Rinmember2.bulkWrite(bulkOps);
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

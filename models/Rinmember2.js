@@ -37,6 +37,10 @@ const rinmemberSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    serial: {
+      type: Number,
+      default: 0,
+    },
     transactions: [rintransactionSchema],
   },
   { timestamps: true }
