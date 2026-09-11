@@ -67,7 +67,7 @@ export default function Rin() {
     // স্টেট আপডেট
     setMembers(items);
 
-    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
+    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
     try {
       const res = await fetch("/api/rinmembers", {
         method: "PUT",
@@ -81,7 +81,7 @@ export default function Rin() {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("ক্রম পরিবর্তন করা হয়েছে");
+        toast.success("ক্রম পরিবর্তন করা হয়েছে");
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
         fetchMembers();
@@ -289,29 +289,11 @@ export default function Rin() {
                         >
                           <table className="w-full text-black border-collapse">
                             <thead>
-                              {/* Row 1: Drag handle dots, Name & Actions */}
+                              {/* Row 1: Name & Actions */}
                               <tr className="border-b-2 border-black bg-white">
                                 <th colSpan={3} className="border-b-2 border-black p-3 text-left">
                                   <div className="flex justify-between items-center flex-wrap gap-2">
-                                    <div className="flex items-center gap-2">
-                                      {/* ডট গ্রিপ আইকন ড্র্যাগ করার জন্য */}
-                                      {isAdmin && (
-                                        <div
-                                          {...provided.dragHandleProps}
-                                          className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-100 rounded touch-none flex items-center"
-                                          title="ড্র্যাগ করে সরান"
-                                        >
-                                          <svg
-                                            className="w-6 h-6 text-gray-600"
-                                            fill="currentColor"
-                                            viewBox="0 0 20 20"
-                                          >
-                                            <path d="M7 4a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0zM7 16a2 2 0 11-4 0 2 2 0 014 0zM17 4a2 2 0 11-4 0 2 2 0 014 0zM17 10a2 2 0 11-4 0 2 2 0 014 0zM17 16a2 2 0 11-4 0 2 2 0 014 0z" />
-                                          </svg>
-                                        </div>
-                                      )}
-                                      <span className="font-bold text-lg">নাম: {member.name}</span>
-                                    </div>
+                                    <span className="font-bold text-lg">নাম: {member.name}</span>
                                     {isAdmin && (
                                       <div className="flex gap-2">
                                         <button
@@ -367,7 +349,25 @@ export default function Rin() {
                                   colSpan={3}
                                   className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
                                 >
-                                  অবশিষ্ট : {oboshisto}
+                                  <div className="flex items-center justify-center gap-2">
+                                    {/* ড্র্যাগ গ্রিপ আইকনটি অবশিষ্ট এর বাম পাশে আনা হয়েছে */}
+                                    {isAdmin && (
+                                      <div
+                                        {...provided.dragHandleProps}
+                                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-yellow-600/30 rounded touch-none flex items-center"
+                                        title="ড্র্যাগ করে সরান"
+                                      >
+                                        <svg
+                                          className="w-6 h-6 text-black"
+                                          fill="currentColor"
+                                          viewBox="0 0 20 20"
+                                        >
+                                          <path d="M7 4a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0zM7 16a2 2 0 11-4 0 2 2 0 014 0zM17 4a2 2 0 11-4 0 2 2 0 014 0zM17 10a2 2 0 11-4 0 2 2 0 014 0zM17 16a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                      </div>
+                                    )}
+                                    <span>অবশিষ্ট : {oboshisto}</span>
+                                  </div>
                                 </th>
                               </tr>
                             </tfoot>
