@@ -354,7 +354,7 @@ export default function Rin() {
                                     {isAdmin && (
                                       <div
                                         {...provided.dragHandleProps}
-                                        className="cursor-grab active:cursor-grabbing p-1 hover:bg-yellow-600/30 rounded touch-none flex items-center"
+                                        className="cursor-grab left-2 active:cursor-grabbing p-1 hover:bg-yellow-600/30 rounded touch-none flex items-center"
                                         title="ড্র্যাগ করে সরান"
                                       >
                                         <svg
