@@ -278,8 +278,8 @@ export default function Shonchoi() {
             setIsDropdownOpen(true);
           }}
           onFocus={() => setIsDropdownOpen(true)}
-          placeholder="মেম্বারের নাম দিয়ে সার্চ করুন..."
-          className="w-70px justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+          placeholder="নাম দিয়ে সার্চ করুন..."
+          className="w-50px justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
         />
 
         {/* Dynamic Suggestion Dropdown */}
