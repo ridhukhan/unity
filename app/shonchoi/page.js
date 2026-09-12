@@ -269,7 +269,7 @@ export default function Shonchoi() {
       </div>
 
       {/* SEARCH BAR SECTION */}
-      <div className="relative max-w-md mx-auto mt-6 z-20">
+      <div className="relative max-w-md mx-auto mt-1 z-20">
         <input
           type="text"
           value={searchQuery}
@@ -279,7 +279,7 @@ export default function Shonchoi() {
           }}
           onFocus={() => setIsDropdownOpen(true)}
           placeholder="মেম্বারের নাম দিয়ে সার্চ করুন..."
-          className="w-100px justify-center border-2 border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+          className="w-70px justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
         />
 
         {/* Dynamic Suggestion Dropdown */}
