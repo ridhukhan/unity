@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect ,useRef} from "react";
 import { toast } from "sonner";
 import {
   DragDropContext,
@@ -58,6 +58,28 @@ export default function Rin() {
     checkAdminStatus();
     fetchMembers();
   }, []);
+ // Search handling & Auto scroll functions
+  const filteredSuggestions = searchQuery.trim()
+    ? members.filter((m) =>
+        m.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const scrollToMember = (memberId) => {
+    const targetElement = memberRefs.current[memberId];
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      // Visual feedback via dynamic style highlight
+      targetElement.classList.add("ring-4", "ring-yellow-500");
+      setTimeout(() => {
+        targetElement.classList.remove("ring-4", "ring-yellow-500");
+      }, 2500);
+    }
+    setIsDropdownOpen(false);
+  };
 
   // Drag and Drop Handler (@hello-pangea/dnd)
   const handleOnDragEnd = async (result) => {
