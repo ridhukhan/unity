@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
@@ -18,6 +18,11 @@ export default function Shonchoi() {
   const [transactions, setTransactions] = useState([
     { date: "", joma: null, uttolon: null, comments: "" },
   ]);
+
+  // Search and Scroll State/Ref
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const memberRefs = useRef({});
 
   const checkAdminStatus = async () => {
     try {
@@ -54,6 +59,29 @@ export default function Shonchoi() {
     fetchMembers();
   }, []);
 
+  // Search handling & Auto scroll functions
+  const filteredSuggestions = searchQuery.trim()
+    ? members.filter((m) =>
+        m.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const scrollToMember = (memberId) => {
+    const targetElement = memberRefs.current[memberId];
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      // Visual feedback via dynamic style highlight
+      targetElement.classList.add("ring-4", "ring-yellow-500");
+      setTimeout(() => {
+        targetElement.classList.remove("ring-4", "ring-yellow-500");
+      }, 2500);
+    }
+    setIsDropdownOpen(false);
+  };
+
   // Drag and Drop ও DB Save হ্যান্ডলার
   const handleOnDragEnd = async (result) => {
     if (!result.destination || !isAdmin) return;
@@ -62,10 +90,8 @@ export default function Shonchoi() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // ১. ক্লায়েন্ট সাইড স্টেট সাথে সাথে আপডেট
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা (/api/members PUT API-তে)
     try {
       const res = await fetch("/api/members", {
         method: "PUT",
@@ -75,12 +101,12 @@ export default function Shonchoi() {
 
       const data = await res.json();
       if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        fetchMembers(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
+        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
+        fetchMembers();
       }
     } catch (err) {
       console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
+      toast.error("সার্ভারে সমস্যা হয়েছে!");
       fetchMembers();
     }
   };
@@ -242,6 +268,40 @@ export default function Shonchoi() {
         </h1>
       </div>
 
+      {/* SEARCH BAR SECTION */}
+      <div className="relative max-w-md mx-auto mt-6 z-20">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setIsDropdownOpen(true);
+          }}
+          onFocus={() => setIsDropdownOpen(true)}
+          placeholder="মেম্বারের নাম দিয়ে সার্চ করুন..."
+          className="w-full p-3 border-2 border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+        />
+
+        {/* Dynamic Suggestion Dropdown */}
+        {isDropdownOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+            {filteredSuggestions.map((m) => (
+              <div
+                key={m._id}
+                onClick={() => {
+                  setSearchQuery(m.name);
+                  scrollToMember(m._id);
+                }}
+                className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
+              >
+                <span>{m.name}</span>
+                <span className="text-xs text-gray-500">স্কোল করুন</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {isAdmin && (
         <div className="flex justify-center my-6">
           <button
@@ -278,13 +338,16 @@ export default function Shonchoi() {
                       key={member._id}
                       draggableId={member._id.toString()}
                       index={index}
-                      isDragDisabled={!isAdmin} // অ্যাডমিন না হলে ড্র্যাগ ডিজেবল থাকবে
+                      isDragDisabled={!isAdmin}
                     >
                       {(provided) => (
                         <div
-                          ref={provided.innerRef}
+                          ref={(el) => {
+                            provided.innerRef(el);
+                            if (el) memberRefs.current[member._id] = el;
+                          }}
                           {...provided.draggableProps}
-                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md transition-all duration-300"
                         >
                           <table className="w-full border-collapse">
                             <thead>
@@ -347,7 +410,6 @@ export default function Shonchoi() {
                                   className="border-t-2 border-black p-3 bg-yellow-500 font-bold text-lg"
                                 >
                                   <div className="flex items-center justify-between px-2">
-                                    {/* শুধুমাত্র অ্যাডমিন হলেই ড্র্যাগ ডট আইকনটি দেখা যাবে */}
                                     {isAdmin ? (
                                       <div
                                         {...provided.dragHandleProps}
@@ -363,7 +425,7 @@ export default function Shonchoi() {
                                         </svg>
                                       </div>
                                     ) : (
-                                      <div className="w-6 h-6" /> // লেআউট ঠিক রাখার জন্য খালি ডাইভ
+                                      <div className="w-6 h-6" />
                                     )}
 
                                     <span className="mx-auto">
