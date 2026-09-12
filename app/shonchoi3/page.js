@@ -351,7 +351,8 @@ export default function Shonchoi() {
                                     {isAdmin ? (
                                       <div
                                         {...provided.dragHandleProps}
-                                        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex items-center justify-center border border-black/20"
+                                        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex
+                                         items-center justify-center border border-black/20"
                                         title="Drag to reorder"
                                       >
                                         <svg
