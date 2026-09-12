@@ -25,7 +25,10 @@ export default function Rin() {
   const [transactions, setTransactions] = useState([
     { date: "", joma: 0, comments: "" },
   ]);
-
+ // Search and Scroll State/Ref
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const memberRefs = useRef({});
   const checkAdminStatus = async () => {
     try {
       const res = await fetch("/api/me");
@@ -55,6 +58,28 @@ export default function Rin() {
     checkAdminStatus();
     fetchMembers();
   }, []);
+ // Search handling & Auto scroll functions
+  const filteredSuggestions = searchQuery.trim()
+    ? members.filter((m) =>
+        m.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const scrollToMember = (memberId) => {
+    const targetElement = memberRefs.current[memberId];
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      // Visual feedback via dynamic style highlight
+      targetElement.classList.add("ring-4", "ring-yellow-500");
+      setTimeout(() => {
+        targetElement.classList.remove("ring-4", "ring-yellow-500");
+      }, 2500);
+    }
+    setIsDropdownOpen(false);
+  };
 
   // Drag and Drop Handler (@hello-pangea/dnd)
   const handleOnDragEnd = async (result) => {
@@ -240,7 +265,38 @@ export default function Rin() {
           )}
         </h1>
       </div>
+<div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setIsDropdownOpen(true);
+          }}
+          onFocus={() => setIsDropdownOpen(true)}
+          placeholder="নাম দিয়ে সার্চ করুন..."
+          className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+        />
 
+        {/* Dynamic Suggestion Dropdown */}
+        {isDropdownOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+            {filteredSuggestions.map((m) => (
+              <div
+                key={m._id}
+                onClick={() => {
+                  setSearchQuery(m.name);
+                  scrollToMember(m._id);
+                }}
+                className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
+              >
+                <span>{m.name}</span>
+                <span className="text-xs text-gray-500">স্কোল করুন</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       {/* Add Button */}
       {isAdmin && (
         <div className="flex justify-center my-6">
