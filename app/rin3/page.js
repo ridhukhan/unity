@@ -7,10 +7,16 @@ import {
   Droppable,
   Draggable,
 } from "@hello-pangea/dnd";
+import { useAppData } from "@/context/DataContext";
 
 export default function Rin() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+ const { 
+    rinData3: members = [], 
+    setRinData3: setMembers, 
+    isLoading: loading, 
+    refetchAll 
+  } = useAppData();
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,24 +45,10 @@ export default function Rin() {
     }
   };
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/rinmembers3");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
+  
 
   useEffect(() => {
     checkAdminStatus();
-    fetchMembers();
   }, []);
  // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
@@ -107,13 +99,17 @@ export default function Rin() {
       const data = await res.json();
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
+        refetchAll();
+
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
-        fetchMembers();
+                refetchAll();
+
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-      fetchMembers();
+              refetchAll();
+
     }
   };
 
@@ -166,20 +162,17 @@ export default function Rin() {
   };
 
   const confirmDelete = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/rinmembers3/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         toast.success("Delete successfully");
-        fetchMembers();
+         refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
-        setLoading(false);
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-      setLoading(false);
     }
   };
 
@@ -237,7 +230,7 @@ export default function Rin() {
       if (data.success) {
         toast.success(editingId ? "update success" : "নতুন তথ্য সংরক্ষিত হয়েছে");
         setIsModalOpen(false);
-        fetchMembers();
+          refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
       }

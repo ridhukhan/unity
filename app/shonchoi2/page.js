@@ -149,8 +149,7 @@ export default function Shonchoi2() {
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-        // 🟢 [UPDATED] ডিলিট হওয়ার পর ক্যাশ ডাটা সিঙ্ক করতে refetchAll কল করা হয়েছে
-        refetchAll(); 
+       
       } else {
         toast.error("Error: " + data.error);
       }

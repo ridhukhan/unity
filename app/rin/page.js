@@ -1,34 +1,44 @@
-"use client";
+'use client';
 
-import { useState, useEffect ,useRef} from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import {
   DragDropContext,
   Droppable,
   Draggable,
 } from "@hello-pangea/dnd";
+import { useAppData } from "@/context/DataContext";
 
 export default function Rin() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Context থেকে সরাসরি rinData -> members এবং setRinData -> setMembers রিসিভ করা হচ্ছে
+  const { 
+    rinData: members = [], 
+    setRinData: setMembers, 
+    isLoading: loading, 
+    refetchAll 
+  } = useAppData();
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  // Form States
+  // Form States (Null সহ অরিজিনাল ডিফল্ট ভ্যালু)
   const [name, setName] = useState("");
-  const [ashol, setAshol] = useState(0);
-  const [lab, setLab] = useState(0);
+  const [ashol, setAshol] = useState(null);
+  const [lab, setLab] = useState(null);
   const [date, setDate] = useState("");
   const [biboron, setBiboron] = useState("");
   const [transactions, setTransactions] = useState([
     { date: "", joma: null, comments: "" },
   ]);
- // Search and Scroll State/Ref
+
+  // Search and Scroll State/Ref
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const memberRefs = useRef({});
+
+  // Check Admin Status
   const checkAdminStatus = async () => {
     try {
       const res = await fetch("/api/me");
@@ -39,26 +49,11 @@ export default function Rin() {
     }
   };
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/rinmembers");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     checkAdminStatus();
-    fetchMembers();
   }, []);
- // Search handling & Auto scroll functions
+
+  // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
     ? members.filter((m) =>
         m.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -72,7 +67,6 @@ export default function Rin() {
         behavior: "smooth",
         block: "center",
       });
-      // Visual feedback via dynamic style highlight
       targetElement.classList.add("ring-4", "ring-yellow-500");
       setTimeout(() => {
         targetElement.classList.remove("ring-4", "ring-yellow-500");
@@ -81,7 +75,7 @@ export default function Rin() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop Handler (@hello-pangea/dnd)
+  // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
     if (!result.destination) return;
 
@@ -89,10 +83,11 @@ export default function Rin() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // স্টেট আপডেট
-    setMembers(items);
+    // Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
-    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
     try {
       const res = await fetch("/api/rinmembers", {
         method: "PUT",
@@ -107,17 +102,18 @@ export default function Rin() {
       const data = await res.json();
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
+        refetchAll();
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
-        fetchMembers();
+        refetchAll();
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-      fetchMembers();
+      refetchAll();
     }
   };
 
-  // গণনা
+  // গণনা (অরিজিনাল Null হ্যান্ডলিং অনুযায়ী)
   const calculateTotalAdai = (txList = []) => {
     return txList.reduce((acc, curr) => acc + (Number(curr.joma) || null), null);
   };
@@ -149,15 +145,15 @@ export default function Rin() {
     if (!isAdmin) return;
     setEditingId(member._id);
     setName(member.name);
-    setAshol(member.ashol || null);
-    setLab(member.lab || null);
+    setAshol(member.ashol ?? null);
+    setLab(member.lab ?? null);
     setDate(member.date || "");
     setBiboron(member.biboron || "");
     setTransactions(
       member.transactions && member.transactions.length > 0
         ? member.transactions.map((t) => ({
             date: t.date || "",
-            joma: t.joma || null,
+            joma: t.joma ?? null,
             comments: t.comments || "",
           }))
         : [{ date: "", joma: null, comments: "" }]
@@ -166,20 +162,17 @@ export default function Rin() {
   };
 
   const confirmDelete = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/rinmembers/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         toast.success("Delete successfully");
-        fetchMembers();
+        refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
-        setLoading(false);
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-      setLoading(false);
     }
   };
 
@@ -225,11 +218,14 @@ export default function Rin() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          ashol: Number(ashol),
-          lab: Number(lab),
+          ashol: ashol !== null && ashol !== "" ? Number(ashol) : null,
+          lab: lab !== null && lab !== "" ? Number(lab) : null,
           date,
           biboron,
-          transactions,
+          transactions: transactions.map(t => ({
+            ...t,
+            joma: t.joma !== null && t.joma !== "" ? Number(t.joma) : null
+          })),
         }),
       });
 
@@ -237,7 +233,7 @@ export default function Rin() {
       if (data.success) {
         toast.success(editingId ? "update success" : "নতুন তথ্য সংরক্ষিত হয়েছে");
         setIsModalOpen(false);
-        fetchMembers();
+        refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
@@ -265,7 +261,8 @@ export default function Rin() {
           )}
         </h1>
       </div>
-<div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
+
+      <div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
         <input
           type="text"
           value={searchQuery}
@@ -274,7 +271,7 @@ export default function Rin() {
             setIsDropdownOpen(true);
           }}
           onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
+          placeholder="নাম দিয়ে সার্চ করুন..."
           className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
         />
 
@@ -297,6 +294,7 @@ export default function Rin() {
           </div>
         )}
       </div>
+
       {/* Add Button */}
       {isAdmin && (
         <div className="flex justify-center my-6">
@@ -330,20 +328,20 @@ export default function Rin() {
                   const oboshisto = calculateOboshisto(member.ashol, member.transactions);
                   return (
                     <Draggable
-  key={member._id}
-  draggableId={`rin-${member._id}`} // ১. draggableId ইউনিক করা হলো
-  index={index}
-  isDragDisabled={!isAdmin}
->
-  {(provided) => (
-    <div
-      ref={(el) => {
-        provided.innerRef(el); // DND Ref
-        memberRefs.current[member._id] = el; // Search Auto-scroll Ref
-      }}
-      {...provided.draggableProps}
-      className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
-    >
+                      key={member._id}
+                      draggableId={`rin-${member._id}`}
+                      index={index}
+                      isDragDisabled={!isAdmin}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={(el) => {
+                            provided.innerRef(el);
+                            memberRefs.current[member._id] = el;
+                          }}
+                          {...provided.draggableProps}
+                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+                        >
                           <table className="w-full text-black border-collapse">
                             <thead>
                               {/* Row 1: Name & Actions */}
@@ -407,7 +405,6 @@ export default function Rin() {
                                   className="border-t-2 border-black p-3 text-center bg-yellow-500 font-bold text-lg"
                                 >
                                   <div className="flex items-center justify-center gap-2">
-                                    {/* ড্র্যাগ গ্রিপ আইকনটি অবশিষ্ট এর বাম পাশে আনা হয়েছে */}
                                     {isAdmin && (
                                       <div
                                         {...provided.dragHandleProps}
@@ -467,8 +464,8 @@ export default function Rin() {
                   <label className="block font-bold mb-1">আসল:</label>
                   <input
                     type="number"
-                    value={ashol}
-                    onChange={(e) => setAshol(Number(e.target.value))}
+                    value={ashol ?? ""}
+                    onChange={(e) => setAshol(e.target.value === "" ? null : Number(e.target.value))}
                     className="w-full border-2 border-black p-2 rounded-md text-center"
                   />
                 </div>
@@ -476,8 +473,8 @@ export default function Rin() {
                   <label className="block font-bold mb-1">লাভ:</label>
                   <input
                     type="number"
-                    value={lab}
-                    onChange={(e) => setLab(Number(e.target.value))}
+                    value={lab ?? ""}
+                    onChange={(e) => setLab(e.target.value === "" ? null : Number(e.target.value))}
                     className="w-full border-2 border-black p-2 rounded-md text-center"
                   />
                 </div>
@@ -534,12 +531,12 @@ export default function Rin() {
                         <td className="border-r border-black p-1">
                           <input
                             type="number"
-                            value={tx.joma}
+                            value={tx.joma ?? ""}
                             onChange={(e) =>
                               handleTransactionChange(
                                 index,
                                 "joma",
-                                Number(e.target.value)
+                                e.target.value === "" ? null : Number(e.target.value)
                               )
                             }
                             className="w-full p-1.5 border border-gray-400 rounded text-center"

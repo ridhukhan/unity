@@ -3,10 +3,14 @@
 import { useState, useEffect,useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useAppData } from "@/context/DataContext";
 
-export default function Shonchoi() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Shonchoi3() {
+
+const {shonchoi3Data:members,setShonchoi3Data:setMembers,
+  isLoading:loading,refetchAll}=useAppData()
+
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -36,25 +40,9 @@ export default function Shonchoi() {
     }
   };
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/members3");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   useEffect(() => {
     checkAdminStatus();
-    fetchMembers();
   }, []);
 // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
@@ -100,12 +88,14 @@ export default function Shonchoi() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        fetchMembers(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
+                refetchAll(); 
+ // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
       }
     } catch (err) {
       console.error(err);
       toast.error("সার্ভারে সমস্যা হয়েছে!");
-      fetchMembers();
+              refetchAll(); 
+
     }
   };
 
@@ -143,7 +133,6 @@ export default function Shonchoi() {
   };
 
   const confirmDelete = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/members3/${id}`, {
         method: "DELETE",
@@ -151,15 +140,13 @@ export default function Shonchoi() {
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-        fetchMembers();
+         refetchAll(); 
       } else {
         toast.error("Error: " + data.error);
-        setLoading(false);
       }
     } catch (err) {
       console.error(err);
       toast.error("Delete server problem");
-      setLoading(false);
     }
   };
 
@@ -237,7 +224,8 @@ export default function Shonchoi() {
           editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
         );
         setIsModalOpen(false);
-        fetchMembers();
+                refetchAll(); 
+
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
