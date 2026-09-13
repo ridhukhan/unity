@@ -23,7 +23,7 @@ export default function Rin() {
   const [date, setDate] = useState("");
   const [biboron, setBiboron] = useState("");
   const [transactions, setTransactions] = useState([
-    { date: "", joma: 0, comments: "" },
+    { date: "", joma: null, comments: "" },
   ]);
  // Search and Scroll State/Ref
   const [searchQuery, setSearchQuery] = useState("");
@@ -119,7 +119,7 @@ export default function Rin() {
 
   // গণনা
   const calculateTotalAdai = (txList = []) => {
-    return txList.reduce((acc, curr) => acc + (Number(curr.joma) || 0), 0);
+    return txList.reduce((acc, curr) => acc + (Number(curr.joma) || null), null);
   };
 
   const calculateOboshisto = (asholVal, txList = []) => {
@@ -137,8 +137,8 @@ export default function Rin() {
     if (!isAdmin) return;
     setEditingId(null);
     setName("");
-    setAshol(0);
-    setLab(0);
+    setAshol(null);
+    setLab(null);
     setDate("");
     setBiboron("");
     setTransactions([{ date: "", joma: null, comments: "" }]);
@@ -280,7 +280,7 @@ export default function Rin() {
 
         {/* Dynamic Suggestion Dropdown */}
         {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
             {filteredSuggestions.map((m) => (
               <div
                 key={m._id}
