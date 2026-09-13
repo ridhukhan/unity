@@ -319,7 +319,7 @@ export default function Rin() {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="rinmembers-list">
+          <Droppable droppableId="rinmembers2-list">
             {(provided) => (
               <div
                 {...provided.droppableProps}
@@ -330,19 +330,20 @@ export default function Rin() {
                   const oboshisto = calculateOboshisto(member.ashol, member.transactions);
                   return (
                     <Draggable
-                      key={member._id}
-                      draggableId={member._id.toString()}
-                      index={index}
-                      isDragDisabled={!isAdmin}
-                    >
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className={`w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md transition-shadow ${
-                            snapshot.isDragging ? "shadow-2xl border-yellow-500" : ""
-                          }`}
-                        >
+  key={member._id}
+  draggableId={`rin2-${member._id}`} // ১. draggableId ইউনিক করা হলো
+  index={index}
+  isDragDisabled={!isAdmin}
+>
+  {(provided) => (
+    <div
+      ref={(el) => {
+        provided.innerRef(el); // DND Ref
+        memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+      }}
+      {...provided.draggableProps}
+      className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+    >
                           <table className="w-full text-black border-collapse">
                             <thead>
                               {/* Row 1: Name & Actions */}
