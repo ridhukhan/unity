@@ -284,7 +284,7 @@ export default function Shonchoi() {
 
         {/* Dynamic Suggestion Dropdown */}
         {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
             {filteredSuggestions.map((m) => (
               <div
                 key={m._id}
