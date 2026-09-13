@@ -40,8 +40,8 @@ const [rinData3,setRinData3]=useState([])
       setShonchoi2Data(data2.data || data2);
       setShonchoi3Data(data3.data || data3);
 setRinData(data4.data || data4)
-setRinData(data5.data || data5)
-setRinData(data6.data || data6)
+setRinData2(data5.data || data5)
+setRinData3(data6.data || data6)
 
     } catch (error) {
       console.error('Data fetch error:', error);
