@@ -319,7 +319,7 @@ export default function Shonchoi() {
         </div>
       ) : (
         <DragDropContext onDragEnd={handleOnDragEnd}>
-          <Droppable droppableId="members-list">
+          <Droppable droppableId="shonchoi3-members-list">
             {(provided) => (
               <div
                 {...provided.droppableProps}
