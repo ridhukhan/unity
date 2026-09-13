@@ -1,12 +1,21 @@
 "use client";
 
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+// 🟢 [ADDED] Global Context Hook Import করা হয়েছে
+import { useAppData } from "@/context/DataContext";
 
-export default function Shonchoi() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function Shonchoi2() {
+  // 🟢 [UPDATED] Local State (members, loading) সরিয়ে Context থেকে ডাটা এবং রিফেচ ফাংশন নেওয়া হয়েছে
+  // এখানে shonchoi2Data বা আপনার Context-এ সংজ্ঞায়িত সঠিক State Key-টি ব্যবহার করতে পারেন
+  const { 
+    shonchoi2Data: members, 
+    setShonchoi2Data: setMembers, 
+    isLoading: loading, 
+    refetchAll 
+  } = useAppData();
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -18,10 +27,12 @@ export default function Shonchoi() {
   const [transactions, setTransactions] = useState([
     { date: "", joma: null, uttolon: null, comments: "" },
   ]);
-// Search and Scroll State/Ref
+
+  // Search and Scroll State/Ref
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const memberRefs = useRef({});
+
   const checkAdminStatus = async () => {
     try {
       const res = await fetch("/api/me");
@@ -36,27 +47,12 @@ export default function Shonchoi() {
     }
   };
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/members2");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // 🟢 [UPDATED] useEffect থেকে আলাদা fetchMembers() সরিয়ে শুধু Admin Status চেক রাখা হয়েছে
   useEffect(() => {
     checkAdminStatus();
-    fetchMembers();
   }, []);
-// Search handling & Auto scroll functions
+
+  // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
     ? members.filter((m) =>
         m.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -78,6 +74,7 @@ export default function Shonchoi() {
     }
     setIsDropdownOpen(false);
   };
+
   // Drag and Drop ও DB Save হ্যান্ডলার
   const handleOnDragEnd = async (result) => {
     if (!result.destination || !isAdmin) return;
@@ -86,10 +83,10 @@ export default function Shonchoi() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // ১. ক্লায়েন্ট সাইড স্টেট সাথে সাথে আপডেট
+    // ১. ক্লায়েন্ট সাইড স্টেট (ক্যাশ) সাথে সাথে আপডেট
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা (/api/members PUT API-তে)
+    // ২. ডাটাবেজে নতুন ক্রমানুসারে সেভ করা
     try {
       const res = await fetch("/api/members2", {
         method: "PUT",
@@ -99,13 +96,15 @@ export default function Shonchoi() {
 
       const data = await res.json();
       if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        fetchMembers(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
+        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
+        // 🟢 [UPDATED] ভুল হলে সার্ভার থেকে ক্যাশ ডাটা রিফেচ করবে
+        refetchAll(); 
       }
     } catch (err) {
       console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
-      fetchMembers();
+      toast.error("সার্ভারে সমস্যা হয়েছে!");
+      // 🟢 [UPDATED] ক্যাশ রিফেচ
+      refetchAll(); 
     }
   };
 
@@ -143,7 +142,6 @@ export default function Shonchoi() {
   };
 
   const confirmDelete = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/members2/${id}`, {
         method: "DELETE",
@@ -151,15 +149,14 @@ export default function Shonchoi() {
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-        fetchMembers();
+        // 🟢 [UPDATED] ডিলিট হওয়ার পর ক্যাশ ডাটা সিঙ্ক করতে refetchAll কল করা হয়েছে
+        refetchAll(); 
       } else {
         toast.error("Error: " + data.error);
-        setLoading(false);
       }
     } catch (err) {
       console.error(err);
       toast.error("Delete server problem");
-      setLoading(false);
     }
   };
 
@@ -237,7 +234,8 @@ export default function Shonchoi() {
           editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
         );
         setIsModalOpen(false);
-        fetchMembers();
+        // 🟢 [UPDATED] সেভ বা আপডেট সম্পন্ন হলে ক্যাশ রিফেচ করা হয়েছে
+        refetchAll(); 
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
@@ -266,7 +264,7 @@ export default function Shonchoi() {
         </h1>
       </div>
 
- <div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
+      <div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
         <input
           type="text"
           value={searchQuery}
@@ -275,7 +273,7 @@ export default function Shonchoi() {
             setIsDropdownOpen(true);
           }}
           onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
+          placeholder="নাম দিয়ে সার্চ করুন..."
           className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
         />
 
@@ -298,7 +296,6 @@ export default function Shonchoi() {
           </div>
         )}
       </div>
-
 
       {isAdmin && (
         <div className="flex justify-center my-6">
@@ -333,20 +330,20 @@ export default function Shonchoi() {
                   const currentTotal = calculateMemberTotal(member.transactions || []);
                   return (
                     <Draggable
-  key={member._id}
-  draggableId={`shonchoi2-${member._id}`} // ১. draggableId ইউনিক করা হলো
-  index={index}
-  isDragDisabled={!isAdmin}
->
-  {(provided) => (
-    <div
-      ref={(el) => {
-        provided.innerRef(el); // DND Ref
-        memberRefs.current[member._id] = el; // Search Auto-scroll Ref
-      }}
-      {...provided.draggableProps}
-      className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
-    >
+                      key={member._id}
+                      draggableId={`shonchoi2-${member._id}`}
+                      index={index}
+                      isDragDisabled={!isAdmin}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={(el) => {
+                            provided.innerRef(el); // DND Ref
+                            memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+                          }}
+                          {...provided.draggableProps}
+                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+                        >
                           <table className="w-full border-collapse">
                             <thead>
                               <tr className="border-b-2 border-black bg-white">
@@ -408,7 +405,6 @@ export default function Shonchoi() {
                                   className="border-t-2 border-black p-3 bg-yellow-500 font-bold text-lg"
                                 >
                                   <div className="flex items-center justify-between px-2">
-                                    {/* শুধুমাত্র অ্যাডমিন হলেই ড্র্যাগ ডট আইকনটি দেখা যাবে */}
                                     {isAdmin ? (
                                       <div
                                         {...provided.dragHandleProps}
@@ -424,7 +420,7 @@ export default function Shonchoi() {
                                         </svg>
                                       </div>
                                     ) : (
-                                      <div className="w-6 h-6" /> // লেআউট ঠিক রাখার জন্য খালি ডাইভ
+                                      <div className="w-6 h-6" />
                                     )}
 
                                     <span className="mx-auto">
