@@ -333,17 +333,20 @@ export default function Shonchoi() {
                   const currentTotal = calculateMemberTotal(member.transactions || []);
                   return (
                     <Draggable
-                      key={member._id}
-                      draggableId={member._id.toString()}
-                      index={index}
-                      isDragDisabled={!isAdmin} // অ্যাডমিন না হলে ড্র্যাগ ডিজেবল থাকবে
-                    >
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
-                        >
+  key={member._id}
+  draggableId={`shonchoi2-${member._id}`} // ১. draggableId ইউনিক করা হলো
+  index={index}
+  isDragDisabled={!isAdmin}
+>
+  {(provided) => (
+    <div
+      ref={(el) => {
+        provided.innerRef(el); // DND Ref
+        memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+      }}
+      {...provided.draggableProps}
+      className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+    >
                           <table className="w-full border-collapse">
                             <thead>
                               <tr className="border-b-2 border-black bg-white">
