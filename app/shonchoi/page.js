@@ -3,14 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { useAppData } from "@/context/DataContext"; // ১. Context Import করা হলো
 
 export default function Shonchoi() {
-  const [members, setMembers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // ২. Global Context থেকে ক্যাশ ডাটা এবং রিফেচ ফাংশন নেওয়া হলো
+  const { shonchoiData: members, setShonchoiData: setMembers, isLoading: loading, refetchAll } = useAppData();
+
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
   const [editingId, setEditingId] = useState(null);
 
   const [name, setName] = useState("");
@@ -28,35 +29,14 @@ export default function Shonchoi() {
     try {
       const res = await fetch("/api/me");
       const data = await res.json();
-      if (data.isAdmin) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
+      setIsAdmin(!!data.isAdmin);
     } catch (err) {
       setIsAdmin(false);
     }
   };
 
-  const fetchMembers = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/members");
-      const data = await res.json();
-      if (data.success) {
-        setMembers(data.data);
-      }
-    } catch (err) {
-      console.error("ডেটা লোড করতে সমস্যা হয়েছে:", err);
-      toast.error("ডেটা লোড করতে সমস্যা হয়েছে!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     checkAdminStatus();
-    fetchMembers();
   }, []);
 
   // Search handling & Auto scroll functions
@@ -73,7 +53,6 @@ export default function Shonchoi() {
         behavior: "smooth",
         block: "center",
       });
-      // Visual feedback via dynamic style highlight
       targetElement.classList.add("ring-4", "ring-yellow-500");
       setTimeout(() => {
         targetElement.classList.remove("ring-4", "ring-yellow-500");
@@ -90,7 +69,7 @@ export default function Shonchoi() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setMembers(items);
+    setMembers(items); // Instant UI update in Cache
 
     try {
       const res = await fetch("/api/members", {
@@ -102,12 +81,12 @@ export default function Shonchoi() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        fetchMembers();
+        refetchAll();
       }
     } catch (err) {
       console.error(err);
       toast.error("সার্ভারে সমস্যা হয়েছে!");
-      fetchMembers();
+      refetchAll();
     }
   };
 
@@ -145,7 +124,6 @@ export default function Shonchoi() {
   };
 
   const confirmDelete = async (id) => {
-    setLoading(true);
     try {
       const res = await fetch(`/api/members/${id}`, {
         method: "DELETE",
@@ -153,15 +131,13 @@ export default function Shonchoi() {
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-        fetchMembers();
+        refetchAll(); // ব্যাকএন্ডে ডিলিট হলে ক্যাশ ডাটা রিফ্রেশ করা
       } else {
         toast.error("Error: " + data.error);
-        setLoading(false);
       }
     } catch (err) {
       console.error(err);
       toast.error("Delete server problem");
-      setLoading(false);
     }
   };
 
@@ -239,7 +215,7 @@ export default function Shonchoi() {
           editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
         );
         setIsModalOpen(false);
-        fetchMembers();
+        refetchAll(); // সেভ করার পর ব্যাকগ্রাউন্ড ক্যাশ আপডেট
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
@@ -278,7 +254,7 @@ export default function Shonchoi() {
             setIsDropdownOpen(true);
           }}
           onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
+          placeholder="নাম দিয়ে সার্চ করুন..."
           className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
         />
 
