@@ -13,8 +13,8 @@ export function DataProvider({ children }) {
     try {
       setIsLoading(true);
       const [res1, res2] = await Promise.all([
-        fetch('/api/shonchoi'),   
-        fetch('/api/shonchoi2')  
+        fetch('/api/members'),   
+        fetch('/api/members2')  
       ]);
 
       const data1 = await res1.json();
