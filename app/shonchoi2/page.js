@@ -248,20 +248,19 @@ export default function Shonchoi2() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-       <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setIsDropdownOpen(true);
-          }}
-          onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
-          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base  text-center"
-      
-        />
-         {isDropdownOpen && filteredSuggestions.length > 0 && (
+        <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setIsDropdownOpen(true);
+        }}
+        onFocus={() => setIsDropdownOpen(true)}
+        placeholder="নাম দিয়ে সার্চ করুন..."
+        className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base  text-center"
+      />
+      {isDropdownOpen && filteredSuggestions.length > 0 && (
           <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
             {filteredSuggestions.map((m) => (
               <div
