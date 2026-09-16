@@ -278,7 +278,7 @@ export default function Rin() {
       </div>
 
       {/* Header */}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-8 p-2 border-2 border-black">
         <h1>ঋণ হিসাব</h1>
       </nav>
 
