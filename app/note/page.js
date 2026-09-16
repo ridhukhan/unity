@@ -86,7 +86,7 @@ export default function NoteComponent() {
   };
 
   return (
-    <div className="w-full h-screen bg-white text-black p-0 flex flex-col pt-10">
+    <div className="w-full h-screen bg-white text-black p-0 flex flex-col pt-24">
       {/* ছোট হেডার বার (একদম ওপরে) */}
       <div className="flex justify-between items-center bg-yellow-500 border-b border-black px-4 py-1.5 shadow-sm mb-2">
         <h1 className="text-sm md:text-base font-bold">নোটপ্যাড (Note)</h1>
