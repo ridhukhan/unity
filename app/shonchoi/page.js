@@ -259,7 +259,7 @@ export default function Shonchoi() {
           </div>
         )}
       </div>
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-14 p-2 border-2 border-black">
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-10 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
 
