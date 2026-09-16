@@ -229,6 +229,18 @@ export default function Shonchoi() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
+        <div className="top-0  max-w-md mx-auto mt-1 z-[1000] fixed  flex justify-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setIsDropdownOpen(true);
+          }}
+          onFocus={() => setIsDropdownOpen(true)}
+          placeholder="নাম দিয়ে সার্চ করুন..."
+          className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+        />
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
@@ -245,18 +257,7 @@ export default function Shonchoi() {
       </div>
 
       {/* SEARCH BAR SECTION */}
-      <div className="relative max-w-md mx-auto mt-1 z-[1000] fixed top-0 flex justify-center">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setIsDropdownOpen(true);
-          }}
-          onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
-          className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
-        />
+    
 
         {/* Dynamic Suggestion Dropdown */}
         {isDropdownOpen && filteredSuggestions.length > 0 && (
