@@ -245,7 +245,7 @@ export default function Shonchoi() {
       </div>
 
       {/* SEARCH BAR SECTION */}
-      <div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
+      <div className="relative max-w-md mx-auto mt-1 z-[1000] fixed top-0 flex justify-center">
         <input
           type="text"
           value={searchQuery}
