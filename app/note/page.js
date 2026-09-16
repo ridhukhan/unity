@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+
 export default function NoteComponent() {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-const router=useRouter()
+  const router = useRouter();
+
   // অ্যাডমিন স্ট্যাটাস যাচাই
   const checkAdminStatus = async () => {
     try {
@@ -19,9 +21,8 @@ const router=useRouter()
         setIsAdmin(true);
       } else {
         setIsAdmin(false);
-        toast.error(" only admin allow this page")
-
-        router.push("/")
+        toast.error("only admin allow this page");
+        router.push("/");
       }
     } catch (err) {
       setIsAdmin(false);
@@ -72,7 +73,7 @@ const router=useRouter()
       const data = await res.json();
       if (res.ok) {
         toast.success("Note Save Success!");
-        setIsEditing(false); // সেভ হওয়ার পর এডিট মোড বন্ধ হবে
+        setIsEditing(false); // সেভ হওয়ার পর এডিট মোড বন্ধ হবে
       } else {
         toast.error(data.error || "Note didn't save!");
       }
@@ -85,10 +86,10 @@ const router=useRouter()
   };
 
   return (
-    <div className="w-full h-screen bg-white text-black p-4 flex flex-col pt-24">
-      {/* টপ বার (হেডার এবং বাটন) */}
-      <div className="flex justify-between items-center bg-yellow-500 border-2 border-black p-3 rounded-lg shadow-md mb-4">
-        <h1 className="text-xl md:text-2xl font-bold">নোটপ্যাড (Note)</h1>
+    <div className="w-full h-screen bg-white text-black p-0 flex flex-col pt-10">
+      {/* ছোট হেডার বার (একদম ওপরে) */}
+      <div className="flex justify-between items-center bg-yellow-500 border-b border-black px-4 py-1.5 shadow-sm mb-2">
+        <h1 className="text-sm md:text-base font-bold">নোটপ্যাড (Note)</h1>
 
         {/* শুধুমাত্র অ্যাডমিনদের জন্য এডিট ও সেভ বাটন */}
         {isAdmin && (
@@ -96,7 +97,7 @@ const router=useRouter()
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-1.5 rounded-md border-2 border-black shadow-sm transition-transform active:scale-95 cursor-pointer"
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs px-3 py-1 rounded border border-black transition-transform active:scale-95 cursor-pointer"
               >
                 Edit
               </button>
@@ -104,14 +105,14 @@ const router=useRouter()
               <>
                 <button
                   onClick={() => setIsEditing(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-black font-bold px-3 py-1.5 rounded-md border-2 border-black shadow-sm cursor-pointer"
+                  className="bg-gray-300 hover:bg-gray-400 text-black font-semibold text-xs px-2.5 py-1 rounded border border-black cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-1.5 rounded-md border-2 border-black shadow-sm transition-transform active:scale-95 cursor-pointer disabled:opacity-50"
+                  className="bg-green-600 hover:bg-green-700 text-white font-semibold text-xs px-3 py-1 rounded border border-black transition-transform active:scale-95 cursor-pointer disabled:opacity-50"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>
@@ -121,24 +122,22 @@ const router=useRouter()
         )}
       </div>
 
-      {/* টেক্সট এরিয়া এলাকা */}
+      {/* টেক্সট এরিয়া এলাকা (বর্ডার ছাড়া সম্পূর্ণ স্ক্রিন জুড়ে) */}
       {loading ? (
-        <div className="flex-1 flex items-center justify-center font-bold text-gray-500 text-lg">
+        <div className="flex-1 flex items-center justify-center font-bold text-gray-500 text-base">
           নোট লোড হচ্ছে...
         </div>
       ) : (
-        <div className="flex-1 w-full h-full relative">
+        <div className="flex-1 w-full h-full">
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            readOnly={!isEditing} // এডিট মোড অফ থাকলে ইনপুট বন্ধ থাকবে
+            readOnly={!isEditing}
             placeholder={
-              isAdmin
-                ? "write ur note..."
-                : "no note available।"
+              isAdmin ? "write ur note..." : "no note available।"
             }
-            className={`w-full h-full p-4 bg-white text-black font-bold text-base md:text-lg border-2 border-black rounded-lg shadow-inner resize-none focus:outline-none overflow-y-auto whitespace-pre-wrap ${
-              !isEditing ? "cursor-not-allowed bg-gray-50" : ""
+            className={`w-full h-full p-4 bg-white text-black font-medium text-base md:text-lg border-none focus:outline-none resize-none overflow-y-auto whitespace-pre-wrap ${
+              !isEditing ? "cursor-not-allowed bg-white" : ""
             }`}
           />
         </div>
