@@ -248,22 +248,7 @@ export default function Shonchoi2() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
-        <h1>সঞ্চয় হিসাব</h1>
-      </nav>
-
-      <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
-        <h1>
-          মোট জমা:{" "}
-          {loading ? (
-            <span className="text-gray-500">checking...</span>
-          ) : (
-            `${calculateGrandTotal()} `
-          )}
-        </h1>
-      </div>
-
-      <div className="relative max-w-md mx-auto mt-1 z-20 flex justify-center">
+       <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
         <input
           type="text"
           value={searchQuery}
@@ -273,11 +258,10 @@ export default function Shonchoi2() {
           }}
           onFocus={() => setIsDropdownOpen(true)}
           placeholder="নাম দিয়ে সার্চ করুন..."
-          className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
+          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base  text-center"
+      
         />
-
-        {/* Dynamic Suggestion Dropdown */}
-        {isDropdownOpen && filteredSuggestions.length > 0 && (
+         {isDropdownOpen && filteredSuggestions.length > 0 && (
           <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
             {filteredSuggestions.map((m) => (
               <div
@@ -294,6 +278,25 @@ export default function Shonchoi2() {
             ))}
           </div>
         )}
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
+        <h1>সঞ্চয় হিসাব</h1>
+      </nav>
+
+      <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
+        <h1>
+          মোট জমা:{" "}
+          {loading ? (
+            <span className="text-gray-500">checking...</span>
+          ) : (
+            `${calculateGrandTotal()} `
+          )}
+        </h1>
+      </div>
+
+     
+
+        {/* Dynamic Suggestion Dropdown */}
+       
       </div>
 
       {isAdmin && (
