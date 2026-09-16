@@ -229,18 +229,36 @@ export default function Shonchoi() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-        <div className="top-0  max-w-md mx-auto mt-1 z-[1000] fixed  flex justify-center">
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setIsDropdownOpen(true);
-          }}
-          onFocus={() => setIsDropdownOpen(true)}
-          placeholder="নাম দিয়ে সার্চ করুন..."
-          className="w-[150px] justify-center border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500 text-base font-medium"
-        />
+       <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-xs px-2 flex flex-col items-center">
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setIsDropdownOpen(true);
+        }}
+        onFocus={() => setIsDropdownOpen(true)}
+        placeholder="নাম দিয়ে সার্চ করুন..."
+        className="w-full border-2 bg-amber-500 font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base p-2 text-center"
+      />
+      {isDropdownOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+            {filteredSuggestions.map((m) => (
+              <div
+                key={m._id}
+                onClick={() => {
+                  setSearchQuery(m.name);
+                  scrollToMember(m._id);
+                }}
+                className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
+              >
+                <span>{m.name}</span>
+                <span className="text-xs text-gray-500">স্কোল করুন</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
       <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
@@ -260,24 +278,7 @@ export default function Shonchoi() {
     
 
         {/* Dynamic Suggestion Dropdown */}
-        {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
-            {filteredSuggestions.map((m) => (
-              <div
-                key={m._id}
-                onClick={() => {
-                  setSearchQuery(m.name);
-                  scrollToMember(m._id);
-                }}
-                className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
-              >
-                <span>{m.name}</span>
-                <span className="text-xs text-gray-500">স্কোল করুন</span>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+        
 
       {isAdmin && (
         <div className="flex justify-center my-6">
