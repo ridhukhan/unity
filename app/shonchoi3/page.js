@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useAppData } from "@/context/DataContext";
 
 export default function Shonchoi3() {
-
-const {shonchoi3Data:members,setShonchoi3Data:setMembers,
-  isLoading:loading,refetchAll}=useAppData()
-
+  const {
+    shonchoi3Data: members = [],
+    setShonchoi3Data: setMembers,
+    isLoading: loading,
+    refetchAll,
+  } = useAppData();
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,29 +24,27 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
   const [transactions, setTransactions] = useState([
     { date: "", joma: null, uttolon: null, comments: "" },
   ]);
-// Search and Scroll State/Ref
+
+  // Search and Scroll State/Ref
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const memberRefs = useRef({});
+
   const checkAdminStatus = async () => {
     try {
       const res = await fetch("/api/me");
       const data = await res.json();
-      if (data.isAdmin) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
+      setIsAdmin(!!data.isAdmin);
     } catch (err) {
       setIsAdmin(false);
     }
   };
 
-  
   useEffect(() => {
     checkAdminStatus();
   }, []);
-// Search handling & Auto scroll functions
+
+  // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
     ? members.filter((m) =>
         m.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -66,6 +66,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
     }
     setIsDropdownOpen(false);
   };
+
   // Drag and Drop ও DB Save হ্যান্ডলার
   const handleOnDragEnd = async (result) => {
     if (!result.destination || !isAdmin) return;
@@ -77,7 +78,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
     // ১. ক্লায়েন্ট সাইড স্টেট সাথে সাথে আপডেট
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা (/api/members PUT API-তে)
+    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা
     try {
       const res = await fetch("/api/members3", {
         method: "PUT",
@@ -87,15 +88,13 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
 
       const data = await res.json();
       if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-                refetchAll(); 
- // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
+        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
+        refetchAll(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
       }
     } catch (err) {
       console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
-              refetchAll(); 
-
+      toast.error("সার্ভারে সমস্যা হয়েছে!");
+      refetchAll();
     }
   };
 
@@ -140,7 +139,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-         refetchAll(); 
+        refetchAll();
       } else {
         toast.error("Error: " + data.error);
       }
@@ -155,13 +154,13 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
       toast.error("শুধুমাত্র অ্যাডমিন ডিলিট করতে পারবেন!");
       return;
     }
-    toast("are you sure?", {
+    toast("Are you sure?", {
       action: {
-        label: "yes",
+        label: "Yes",
         onClick: () => confirmDelete(id),
       },
       cancel: {
-        label: "cancel",
+        label: "Cancel",
       },
     });
   };
@@ -188,7 +187,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
 
   const removeTransactionRow = (index) => {
     if (transactions.length === 1) {
-      toast.warning("at least 1 input required");
+      toast.warning("At least 1 input required");
       return;
     }
     const updated = transactions.filter((_, i) => i !== index);
@@ -224,8 +223,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
           editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
         );
         setIsModalOpen(false);
-                refetchAll(); 
-
+        refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
@@ -238,21 +236,24 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-      <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => {
-          setSearchQuery(e.target.value);
-          setIsDropdownOpen(true);
-        }}
-        onFocus={() => setIsDropdownOpen(true)}
-        placeholder="নাম দিয়ে সার্চ করুন..."
-        className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base  text-center"
-      />
-      {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+    <div className="max-w-4xl mx-auto p-4 text-black pt-24">
+      {/* Sticky Top Header Area */}
+      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-full max-w-xs px-2 flex flex-col items-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setIsDropdownOpen(true);
+          }}
+          onFocus={() => setIsDropdownOpen(true)}
+          placeholder="নাম দিয়ে সার্চ করুন..."
+          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md p-2 focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base text-center"
+        />
+
+        {/* Dynamic Suggestion Dropdown */}
+        {isDropdownOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute left-2 right-2 mt-1 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
             {filteredSuggestions.map((m) => (
               <div
                 key={m._id}
@@ -263,45 +264,47 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                 className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
               >
                 <span>{m.name}</span>
-                <span className="text-xs text-gray-500">স্কোল করুন</span>
+                <span className="text-xs text-gray-500">স্ক্রোল করুন</span>
               </div>
             ))}
           </div>
         )}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
+      </div>
+
+      {/* Main Header */}
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-6 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
 
+      {/* Grand Total Bar */}
       <div className="text-center mt-4 text-xl md:text-2xl font-bold bg-white p-3 rounded-lg border-2 border-black shadow-sm">
         <h1>
           মোট জমা:{" "}
           {loading ? (
-            <span className="text-gray-500">checking...</span>
+            <span className="text-gray-500">Checking...</span>
           ) : (
-            `${calculateGrandTotal()} `
+            `${calculateGrandTotal()} ৳`
           )}
         </h1>
       </div>
- 
 
-        {/* Dynamic Suggestion Dropdown */}
-        
-      </div>
+      {/* Add Member Button */}
       {isAdmin && (
         <div className="flex justify-center my-6">
           <button
             onClick={handleOpenAddModal}
             className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold text-3xl w-14 h-14 rounded-full border-2 border-black flex items-center justify-center shadow-md cursor-pointer transition-transform hover:scale-105"
-            title="add new member"
+            title="Add new member"
           >
             +
           </button>
         </div>
       )}
 
+      {/* Main List Data */}
       {loading ? (
         <div className="text-center py-10 font-bold text-lg">
-          data loading plz wait ...
+          Data loading, please wait...
         </div>
       ) : members.length === 0 ? (
         <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4 mt-6">
@@ -317,30 +320,37 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                 className="space-y-8 mt-6"
               >
                 {members.map((member, index) => {
-                  const currentTotal = calculateMemberTotal(member.transactions || []);
+                  const currentTotal = calculateMemberTotal(
+                    member.transactions || []
+                  );
                   return (
-                   <Draggable
-  key={member._id}
-  draggableId={`shonchoi2-${member._id}`} // ১. draggableId ইউনিক করা হলো
-  index={index}
-  isDragDisabled={!isAdmin}
->
-  {(provided) => (
-    <div
-      ref={(el) => {
-        provided.innerRef(el); // DND Ref
-        memberRefs.current[member._id] = el; // Search Auto-scroll Ref
-      }}
-      {...provided.draggableProps}
-      className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
-    >
+                    <Draggable
+                      key={member._id}
+                      draggableId={`shonchoi3-${member._id}`}
+                      index={index}
+                      isDragDisabled={!isAdmin}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={(el) => {
+                            provided.innerRef(el); // DND Ref
+                            memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+                          }}
+                          {...provided.draggableProps}
+                          className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
+                        >
                           <table className="w-full border-collapse">
                             <thead>
                               <tr className="border-b-2 border-black bg-white">
-                                <th colSpan={4} className="border-b-2 border-black p-3 text-left">
+                                <th
+                                  colSpan={4}
+                                  className="border-b-2 border-black p-3 text-left"
+                                >
                                   <div className="flex justify-between items-center flex-wrap gap-2">
-                                    <span className="font-bold text-lg">নাম: {member.name}</span>
-                                    
+                                    <span className="font-bold text-lg">
+                                      নাম: {member.name}
+                                    </span>
+
                                     {isAdmin && (
                                       <div className="flex gap-2">
                                         <button
@@ -350,7 +360,9 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                                           Edit
                                         </button>
                                         <button
-                                          onClick={() => handleDeleteMember(member._id)}
+                                          onClick={() =>
+                                            handleDeleteMember(member._id)
+                                          }
                                           className="bg-red-500 hover:bg-red-600 text-white font-bold text-xs md:text-sm px-3 py-1 rounded-md border border-black cursor-pointer shadow-sm"
                                         >
                                           Delete
@@ -362,25 +374,44 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                               </tr>
 
                               <tr className="border-b-2 border-black bg-white">
-                                <th colSpan={4} className="border-b-2 border-black p-3 text-left whitespace-pre-wrap font-medium">
-                                  <span className="font-bold">বিবরণ:</span> {member.biboron}
+                                <th
+                                  colSpan={4}
+                                  className="border-b-2 border-black p-3 text-left whitespace-pre-wrap font-medium"
+                                >
+                                  <span className="font-bold">বিবরণ:</span>{" "}
+                                  {member.biboron}
                                 </th>
                               </tr>
 
                               <tr className="border-b-2 border-black bg-gray-100 text-center text-sm md:text-base">
-                                <th className="border-r-2 border-black p-2 w-1/4">তারিখ</th>
-                                <th className="border-r-2 border-black p-2 w-1/4">জমা</th>
-                                <th className="border-r-2 border-black p-2 w-1/4">উত্তোলন</th>
+                                <th className="border-r-2 border-black p-2 w-1/4">
+                                  তারিখ
+                                </th>
+                                <th className="border-r-2 border-black p-2 w-1/4">
+                                  জমা
+                                </th>
+                                <th className="border-r-2 border-black p-2 w-1/4">
+                                  উত্তোলন
+                                </th>
                                 <th className="p-2 w-1/4">Comments</th>
                               </tr>
                             </thead>
 
                             <tbody>
                               {(member.transactions || []).map((tx, idx) => (
-                                <tr key={idx} className="text-center text-sm md:text-base border-b border-black">
-                                  <td className="border-r-2 border-black p-2">{tx.date}</td>
-                                  <td className="border-r-2 border-black p-2">{tx.joma}</td>
-                                  <td className="border-r-2 border-black p-2">{tx.uttolon}</td>
+                                <tr
+                                  key={idx}
+                                  className="text-center text-sm md:text-base border-b border-black"
+                                >
+                                  <td className="border-r-2 border-black p-2">
+                                    {tx.date}
+                                  </td>
+                                  <td className="border-r-2 border-black p-2">
+                                    {tx.joma}
+                                  </td>
+                                  <td className="border-r-2 border-black p-2">
+                                    {tx.uttolon}
+                                  </td>
                                   <td className="p-2 whitespace-pre-wrap text-left md:text-center">
                                     {tx.comments}
                                   </td>
@@ -395,12 +426,10 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                                   className="border-t-2 border-black p-3 bg-yellow-500 font-bold text-lg"
                                 >
                                   <div className="flex items-center justify-between px-2">
-                                    {/* শুধুমাত্র অ্যাডমিন হলেই ড্র্যাগ ডট আইকনটি দেখা যাবে */}
                                     {isAdmin ? (
                                       <div
                                         {...provided.dragHandleProps}
-                                        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex
-                                         items-center justify-center border border-black/20"
+                                        className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-yellow-600 flex items-center justify-center border border-black/20"
                                         title="Drag to reorder"
                                       >
                                         <svg
@@ -412,7 +441,7 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                                         </svg>
                                       </div>
                                     ) : (
-                                      <div className="w-6 h-6" /> // লেআউট ঠিক রাখার জন্য খালি ডাইভ
+                                      <div className="w-6 h-6" />
                                     )}
 
                                     <span className="mx-auto">
@@ -440,7 +469,9 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-2 z-50 overflow-y-auto">
           <div className="bg-white rounded-lg border-2 border-black w-full max-w-2xl p-5 my-8 max-h-[90vh] overflow-y-auto shadow-2xl">
             <h2 className="text-2xl font-bold text-center mb-4 border-b-2 border-black pb-2">
-              {editingId ? "মেম্বার তথ্য ও ট্রানজেকশন পরিবর্তন করুন" : "নতুন মেম্বার ও ট্রানজেকশন ফর্ম"}
+              {editingId
+                ? "মেম্বার তথ্য ও ট্রানজেকশন পরিবর্তন করুন"
+                : "নতুন মেম্বার ও ট্রানজেকশন ফর্ম"}
             </h2>
 
             <form onSubmit={handleSave} className="space-y-4">
@@ -490,7 +521,11 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                             placeholder="1/9/2026"
                             value={tx.date}
                             onChange={(e) =>
-                              handleTransactionChange(index, "date", e.target.value)
+                              handleTransactionChange(
+                                index,
+                                "date",
+                                e.target.value
+                              )
                             }
                             className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
                           />
@@ -503,7 +538,9 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                               handleTransactionChange(
                                 index,
                                 "joma",
-                                e.target.value === "" ? null : Number(e.target.value)
+                                e.target.value === ""
+                                  ? null
+                                  : Number(e.target.value)
                               )
                             }
                             className="w-full p-1.5 border border-gray-400 rounded text-center text-base"
@@ -517,7 +554,9 @@ const {shonchoi3Data:members,setShonchoi3Data:setMembers,
                               handleTransactionChange(
                                 index,
                                 "uttolon",
-                                e.target.value === "" ? null : Number(e.target.value)
+                                e.target.value === ""
+                                  ? null
+                                  : Number(e.target.value)
                               )
                             }
                             className="w-full p-1.5 border border-gray-400 rounded text-center text-base"

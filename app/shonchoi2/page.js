@@ -3,12 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-// 🟢 [ADDED] Global Context Hook Import করা হয়েছে
 import { useAppData } from "@/context/DataContext";
 
 export default function Shonchoi2() {
-  // 🟢 [UPDATED] Local State (members, loading) সরিয়ে Context থেকে ডাটা এবং রিফেচ ফাংশন নেওয়া হয়েছে
-  // এখানে shonchoi2Data বা আপনার Context-এ সংজ্ঞায়িত সঠিক State Key-টি ব্যবহার করতে পারেন
   const { 
     shonchoi2Data: members, 
     setShonchoi2Data: setMembers, 
@@ -47,14 +44,13 @@ export default function Shonchoi2() {
     }
   };
 
-  // 🟢 [UPDATED] useEffect থেকে আলাদা fetchMembers() সরিয়ে শুধু Admin Status চেক রাখা হয়েছে
   useEffect(() => {
     checkAdminStatus();
   }, []);
 
   // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
-    ? members.filter((m) =>
+    ? (members || []).filter((m) =>
         m.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
@@ -66,7 +62,6 @@ export default function Shonchoi2() {
         behavior: "smooth",
         block: "center",
       });
-      // Visual feedback via dynamic style highlight
       targetElement.classList.add("ring-4", "ring-yellow-500");
       setTimeout(() => {
         targetElement.classList.remove("ring-4", "ring-yellow-500");
@@ -75,18 +70,18 @@ export default function Shonchoi2() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop ও DB Save হ্যান্ডলার
+  // Drag and Drop & DB Save Handler
   const handleOnDragEnd = async (result) => {
     if (!result.destination || !isAdmin) return;
 
-    const items = Array.from(members);
+    const items = Array.from(members || []);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // ১. ক্লায়েন্ট সাইড স্টেট (ক্যাশ) সাথে সাথে আপডেট
+    // 1. Client side update
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে সেভ করা
+    // 2. Save new order to Database
     try {
       const res = await fetch("/api/members2", {
         method: "PUT",
@@ -97,13 +92,11 @@ export default function Shonchoi2() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        // 🟢 [UPDATED] ভুল হলে সার্ভার থেকে ক্যাশ ডাটা রিফেচ করবে
         refetchAll(); 
       }
     } catch (err) {
       console.error(err);
       toast.error("সার্ভারে সমস্যা হয়েছে!");
-      // 🟢 [UPDATED] ক্যাশ রিফেচ
       refetchAll(); 
     }
   };
@@ -149,7 +142,7 @@ export default function Shonchoi2() {
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
-       
+        refetchAll(); // 🟢 [FIXED] Delete হওয়ার পর Context Refetch করা হয়েছে
       } else {
         toast.error("Error: " + data.error);
       }
@@ -176,14 +169,14 @@ export default function Shonchoi2() {
   };
 
   const calculateMemberTotal = (txList) => {
-    return txList.reduce(
+    return (txList || []).reduce(
       (acc, curr) => acc + (Number(curr.joma) || 0) - (Number(curr.uttolon) || 0),
       0
     );
   };
 
   const calculateGrandTotal = () => {
-    return members.reduce((acc, member) => {
+    return (members || []).reduce((acc, member) => {
       return acc + calculateMemberTotal(member.transactions || []);
     }, 0);
   };
@@ -233,7 +226,6 @@ export default function Shonchoi2() {
           editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
         );
         setIsModalOpen(false);
-        // 🟢 [UPDATED] সেভ বা আপডেট সম্পন্ন হলে ক্যাশ রিফেচ করা হয়েছে
         refetchAll(); 
       } else {
         toast.error("ত্রুটি: " + data.error);
@@ -248,20 +240,21 @@ export default function Shonchoi2() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-        <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => {
-          setSearchQuery(e.target.value);
-          setIsDropdownOpen(true);
-        }}
-        onFocus={() => setIsDropdownOpen(true)}
-        placeholder="নাম দিয়ে সার্চ করুন..."
-        className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base  text-center"
-      />
-      {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+      {/* Fixed Search Bar & Top Navigation Header */}
+      <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[200px] max-w-xs px-2 flex flex-col items-center">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setIsDropdownOpen(true);
+          }}
+          onFocus={() => setIsDropdownOpen(true)}
+          placeholder="নাম দিয়ে সার্চ করুন..."
+          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base text-center p-1"
+        />
+        {isDropdownOpen && filteredSuggestions.length > 0 && (
+          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200 w-full">
             {filteredSuggestions.map((m) => (
               <div
                 key={m._id}
@@ -272,12 +265,14 @@ export default function Shonchoi2() {
                 className="p-3 hover:bg-yellow-100 cursor-pointer font-semibold transition-colors flex justify-between items-center"
               >
                 <span>{m.name}</span>
-                <span className="text-xs text-gray-500">স্কোল করুন</span>
+                <span className="text-xs text-gray-500">স্ক্রোল করুন</span>
               </div>
             ))}
           </div>
         )}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-3 p-2 border-2 border-black">
+      </div>
+
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-6 p-2 border-2 border-black">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
 
@@ -290,12 +285,6 @@ export default function Shonchoi2() {
             `${calculateGrandTotal()} `
           )}
         </h1>
-      </div>
-
-     
-
-        {/* Dynamic Suggestion Dropdown */}
-       
       </div>
 
       {isAdmin && (
@@ -314,7 +303,7 @@ export default function Shonchoi2() {
         <div className="text-center py-10 font-bold text-lg">
           data loading plz wait ...
         </div>
-      ) : members.length === 0 ? (
+      ) : !members || members.length === 0 ? (
         <div className="text-center py-10 text-gray-600 font-medium bg-white rounded-lg border-2 border-black shadow-sm p-4 mt-6">
           No User found
         </div>
@@ -339,8 +328,8 @@ export default function Shonchoi2() {
                       {(provided) => (
                         <div
                           ref={(el) => {
-                            provided.innerRef(el); // DND Ref
-                            memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+                            provided.innerRef(el);
+                            memberRefs.current[member._id] = el;
                           }}
                           {...provided.draggableProps}
                           className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"
