@@ -226,7 +226,7 @@ export default function Rin() {
       if (data.success) {
         toast.success(editingId ? "update success" : "নতুন তথ্য সংরক্ষিত হয়েছে");
         setIsModalOpen(false);
-        fetchMembers();
+              refetchAll();
       } else {
         toast.error("ত্রুটি: " + data.error);
       }
