@@ -229,7 +229,7 @@ export default function Shonchoi() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-20">
-       <div className="fixed top-22 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-xs px-2 flex flex-col items-center">
+       <div className="fixed top-22 left-1/2 -translate-x-1/2 z-[1000] w-[150px] max-w-xs px-2 flex flex-col items-center">
       <input
         type="text"
         value={searchQuery}
