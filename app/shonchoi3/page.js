@@ -16,7 +16,6 @@ export default function Shonchoi3() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
   const [editingId, setEditingId] = useState(null);
 
   const [name, setName] = useState("");
@@ -25,7 +24,6 @@ export default function Shonchoi3() {
     { date: "", joma: null, uttolon: null, comments: "" },
   ]);
 
-  // Search and Scroll State/Ref
   const [searchQuery, setSearchQuery] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const memberRefs = useRef({});
@@ -44,7 +42,6 @@ export default function Shonchoi3() {
     checkAdminStatus();
   }, []);
 
-  // Search handling & Auto scroll functions
   const filteredSuggestions = searchQuery.trim()
     ? members.filter((m) =>
         m.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -58,7 +55,6 @@ export default function Shonchoi3() {
         behavior: "smooth",
         block: "center",
       });
-      // Visual feedback via dynamic style highlight
       targetElement.classList.add("ring-4", "ring-yellow-500");
       setTimeout(() => {
         targetElement.classList.remove("ring-4", "ring-yellow-500");
@@ -67,7 +63,6 @@ export default function Shonchoi3() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop ও DB Save হ্যান্ডলার
   const handleOnDragEnd = async (result) => {
     if (!result.destination || !isAdmin) return;
 
@@ -75,10 +70,8 @@ export default function Shonchoi3() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // ১. ক্লায়েন্ট সাইড স্টেট সাথে সাথে আপডেট
     setMembers(items);
 
-    // ২. ডাটাবেজে নতুন ক্রমানুসারে (Order) সেভ করা
     try {
       const res = await fetch("/api/members3", {
         method: "PUT",
@@ -89,7 +82,7 @@ export default function Shonchoi3() {
       const data = await res.json();
       if (!data.success) {
         toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        refetchAll(); // ব্যর্থ হলে পুরানো অর্ডারে রিভার্ট করা
+        refetchAll();
       }
     } catch (err) {
       console.error(err);
@@ -133,9 +126,7 @@ export default function Shonchoi3() {
 
   const confirmDelete = async (id) => {
     try {
-      const res = await fetch(`/api/members3/${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/members3/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         toast.success("Member deleted successfully");
@@ -155,13 +146,8 @@ export default function Shonchoi3() {
       return;
     }
     toast("Are you sure?", {
-      action: {
-        label: "Yes",
-        onClick: () => confirmDelete(id),
-      },
-      cancel: {
-        label: "Cancel",
-      },
+      action: { label: "Yes", onClick: () => confirmDelete(id) },
+      cancel: { label: "Cancel" },
     });
   };
 
@@ -190,8 +176,7 @@ export default function Shonchoi3() {
       toast.warning("At least 1 input required");
       return;
     }
-    const updated = transactions.filter((_, i) => i !== index);
-    setTransactions(updated);
+    setTransactions(transactions.filter((_, i) => i !== index));
   };
 
   const handleTransactionChange = (index, field, value) => {
@@ -219,9 +204,7 @@ export default function Shonchoi3() {
 
       const data = await res.json();
       if (data.success) {
-        toast.success(
-          editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!"
-        );
+        toast.success(editingId ? "Update success" : "নতুন মেম্বার যুক্ত হয়েছে!");
         setIsModalOpen(false);
         refetchAll();
       } else {
@@ -237,8 +220,8 @@ export default function Shonchoi3() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 text-black pt-24">
-      {/* Sticky Top Header Area */}
-      <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[100] w-full max-w-xs px-2 flex flex-col items-center">
+      {/* EXACT SEARCH BAR CONTAINER */}
+      <div className="fixed top-18 left-1/2 -translate-x-1/2 z-[1000] w-[200px] max-w-xs px-2 flex flex-col items-center">
         <input
           type="text"
           value={searchQuery}
@@ -248,12 +231,10 @@ export default function Shonchoi3() {
           }}
           onFocus={() => setIsDropdownOpen(true)}
           placeholder="নাম দিয়ে সার্চ করুন..."
-          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md p-2 focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base text-center"
+          className="w-full border-2 bg-white font-bold text-black border-black rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-yellow-600 text-base text-center p-1"
         />
-
-        {/* Dynamic Suggestion Dropdown */}
         {isDropdownOpen && filteredSuggestions.length > 0 && (
-          <div className="absolute left-2 right-2 mt-1 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200">
+          <div className="absolute left-0 right-0 mt-2 top-full bg-white border-2 border-black rounded-lg shadow-xl max-h-60 overflow-y-auto divide-y divide-gray-200 w-full">
             {filteredSuggestions.map((m) => (
               <div
                 key={m._id}
@@ -272,7 +253,7 @@ export default function Shonchoi3() {
       </div>
 
       {/* Main Header */}
-      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md mt-6 p-2 border-2 border-black">
+      <nav className="font-bold bg-yellow-500 text-center text-3xl md:text-4xl rounded-lg shadow-md p-2 border-2 border-black mt-2">
         <h1>সঞ্চয় হিসাব</h1>
       </nav>
 
@@ -301,7 +282,7 @@ export default function Shonchoi3() {
         </div>
       )}
 
-      {/* Main List Data */}
+      {/* Main List */}
       {loading ? (
         <div className="text-center py-10 font-bold text-lg">
           Data loading, please wait...
@@ -333,8 +314,8 @@ export default function Shonchoi3() {
                       {(provided) => (
                         <div
                           ref={(el) => {
-                            provided.innerRef(el); // DND Ref
-                            memberRefs.current[member._id] = el; // Search Auto-scroll Ref
+                            provided.innerRef(el);
+                            memberRefs.current[member._id] = el;
                           }}
                           {...provided.draggableProps}
                           className="w-full border-2 border-black bg-white rounded-lg overflow-x-auto shadow-md"

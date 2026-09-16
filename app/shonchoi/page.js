@@ -274,10 +274,7 @@ export default function Shonchoi() {
         </h1>
       </div>
 
-      {/* SEARCH BAR SECTION */}
     
-
-        {/* Dynamic Suggestion Dropdown */}
         
 
       {isAdmin && (
