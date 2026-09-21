@@ -89,6 +89,7 @@ export default function Shonchoi() {
 
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
+if (refetchAll) refetchAll();
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে: " + (data.error || ""));
         if (refetchAll) refetchAll(); // ব্যাকএন্ডে ফেইল করলে আগের ডাটা ফেরত আনবে
