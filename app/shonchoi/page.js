@@ -319,12 +319,14 @@ export default function Shonchoi() {
                 {members.map((member, index) => {
                   const currentTotal = calculateMemberTotal(member.transactions || []);
                   return (
-                    <Draggable
-                      key={member._id}
-                      draggableId={`shonchoi-${member._id}`
-                      index={index}
-                      isDragDisabled={!isAdmin}
-                    >
+                    //  সঠিক কোড:
+<Draggable
+  key={member._id}
+  draggableId={`shonchoi-${member._id}`} // <--- এখানে `}` যুক্ত করা হয়েছে
+  index={index}
+  isDragDisabled={!isAdmin}
+>
+
                       {(provided) => (
                         <div
                           ref={(el) => {
