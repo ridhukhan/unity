@@ -320,7 +320,7 @@ export default function Shonchoi() {
                   return (
                     <Draggable
                       key={member._id}
-                      draggableId={member._id.toString()}
+                      draggableId={`shonchoi-${member._id}`
                       index={index}
                       isDragDisabled={!isAdmin}
                     >
