@@ -61,9 +61,10 @@ export default function Shonchoi() {
     setIsDropdownOpen(false);
   };
 
-   // Drag and Drop Handler
+     // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
     if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
@@ -86,16 +87,16 @@ export default function Shonchoi() {
         }),
       });
       const data = await res.json();
+      
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
-        refetchAll();
       } else {
-        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
-        refetchAll();
+        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে: " + (data.error || ""));
+        if (refetchAll) refetchAll(); // ফেইল করলে অরিজিনাল ডাটা ফেরত আনবে
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-      refetchAll();
+      if (refetchAll) refetchAll();
     }
   };
 
