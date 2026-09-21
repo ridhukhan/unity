@@ -61,36 +61,40 @@ export default function Shonchoi() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop ও DB Save হ্যান্ডলার
+   // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
-    if (!result.destination || !isAdmin) return;
+    if (!result.destination) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setMembers(items); // Instant UI update in Cache
+    // Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
     try {
       const res = await fetch("/api/members", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reorderedMembers: items }),
+        body: JSON.stringify({
+          items: items.map((item, index) => ({
+            _id: item._id,
+            serial: index + 1,
+          })),
+        }),
       });
-
       const data = await res.json();
-
-if (data.success) {
+      if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
         refetchAll();
-
-      if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
+      } else {
+        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
         refetchAll();
       }
     } catch (err) {
-      console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
+      toast.error("সার্ভার সমস্যা!");
       refetchAll();
     }
   };
