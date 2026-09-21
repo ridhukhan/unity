@@ -61,7 +61,7 @@ export default function Shonchoi() {
     setIsDropdownOpen(false);
   };
 
-     // Drag and Drop Handler
+       // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
     if (!result.destination) return;
     if (result.destination.index === result.source.index) return;
@@ -70,7 +70,7 @@ export default function Shonchoi() {
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // Context UI স্টেট সাথে সাথে আপডেট
+    // ১. Context UI স্টেট সাথে সাথে আপডেট
     if (setMembers) {
       setMembers(items);
     }
@@ -80,19 +80,18 @@ export default function Shonchoi() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map((item, index) => ({
+          reorderedMembers: items.map((item) => ({
             _id: item._id,
-            serial: index + 1,
           })),
         }),
       });
       const data = await res.json();
-      
+
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে: " + (data.error || ""));
-        if (refetchAll) refetchAll(); // ফেইল করলে অরিজিনাল ডাটা ফেরত আনবে
+        if (refetchAll) refetchAll(); // ব্যাকএন্ডে ফেইল করলে আগের ডাটা ফেরত আনবে
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
