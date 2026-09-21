@@ -55,13 +55,15 @@ export async function PUT(req) {
   try {
     await dbConnect();
     const body = await req.json();
-    const reorderedMembers = body.reorderedMembers || body;
 
-    if (!Array.isArray(reorderedMembers)) {
+    // reorderedMembers অথবা items যেকোনো নামে আসুক না কেন হ্যান্ডেল করবে
+    const list = body.reorderedMembers || body.items || body;
+
+    if (!Array.isArray(list) || list.length === 0) {
       return NextResponse.json({ success: false, error: "Invalid data format" }, { status: 400 });
     }
 
-    const bulkOps = reorderedMembers.map((member, index) => ({
+    const bulkOps = list.map((member, index) => ({
       updateOne: {
         filter: { _id: member._id },
         update: { $set: { order: index } },
