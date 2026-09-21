@@ -79,6 +79,11 @@ export default function Shonchoi() {
       });
 
       const data = await res.json();
+
+if (data.success) {
+        toast.success("ক্রম পরিবর্তন করা হয়েছে");
+        refetchAll();
+
       if (!data.success) {
         toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
         refetchAll();
