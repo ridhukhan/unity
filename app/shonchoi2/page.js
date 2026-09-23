@@ -70,34 +70,42 @@ export default function Shonchoi2() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop & DB Save Handler
+   // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
-    if (!result.destination || !isAdmin) return;
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
 
-    const items = Array.from(members || []);
+    const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // 1. Client side update
-    setMembers(items);
+    // ১. Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
-    // 2. Save new order to Database
     try {
       const res = await fetch("/api/members2", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reorderedMembers: items }),
+        body: JSON.stringify({
+          reorderedMembers: items.map((item) => ({
+            _id: item._id,
+          })),
+        }),
       });
-
       const data = await res.json();
-      if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        refetchAll(); 
+
+      if (data.success) {
+        toast.success("ক্রম পরিবর্তন করা হয়েছে");
+ refetchAll();
+      } else {
+        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে: " + (data.error || ""));
+        if (refetchAll) refetchAll(); // ব্যাকএন্ডে ফেইল করলে আগের ডাটা ফেরত আনবে
       }
     } catch (err) {
-      console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
-      refetchAll(); 
+      toast.error("সার্ভার সমস্যা!");
+      if (refetchAll) refetchAll();
     }
   };
 

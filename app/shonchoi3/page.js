@@ -63,33 +63,45 @@ export default function Shonchoi3() {
     setIsDropdownOpen(false);
   };
 
+  // Drag and Drop Handler
   const handleOnDragEnd = async (result) => {
-    if (!result.destination || !isAdmin) return;
+    if (!result.destination) return;
+    if (result.destination.index === result.source.index) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    setMembers(items);
+    // ১. Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
     try {
       const res = await fetch("/api/members3", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reorderedMembers: items }),
+        body: JSON.stringify({
+          reorderedMembers: items.map((item) => ({
+            _id: item._id,
+          })),
+        }),
       });
-
       const data = await res.json();
-      if (!data.success) {
-        toast.error(data.error || "পজিশন আপডেট করতে সমস্যা হয়েছে!");
-        refetchAll();
+
+      if (data.success) {
+        toast.success("ক্রম পরিবর্তন করা হয়েছে");
+ refetchAll();
+      } else {
+        toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে: " + (data.error || ""));
+        if (refetchAll) refetchAll(); // ব্যাকএন্ডে ফেইল করলে আগের ডাটা ফেরত আনবে
       }
     } catch (err) {
-      console.error(err);
-      toast.error("সার্ভারে সমস্যা হয়েছে!");
-      refetchAll();
+      toast.error("সার্ভার সমস্যা!");
+      if (refetchAll) refetchAll();
     }
   };
+
 
   const handleOpenAddModal = () => {
     if (!isAdmin) {
