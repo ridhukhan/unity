@@ -73,18 +73,18 @@ export default function Rin() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop Handler (@hello-pangea/dnd)
-  const handleOnDragEnd = async (result) => {
+   const handleOnDragEnd = async (result) => {
     if (!result.destination) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // স্টেট আপডেট
-    setMembers(items);
+    // Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
-    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
     try {
       const res = await fetch("/api/rinmembers3", {
         method: "PUT",
@@ -100,16 +100,13 @@ export default function Rin() {
       if (data.success) {
         toast.success("ক্রম পরিবর্তন করা হয়েছে");
         refetchAll();
-
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
-                refetchAll();
-
+        refetchAll();
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
-              refetchAll();
-
+      refetchAll();
     }
   };
 
@@ -328,7 +325,7 @@ export default function Rin() {
                   return (
                      <Draggable
   key={member._id}
-  draggableId={`shonchoi2-${member._id}`} // ১. draggableId ইউনিক করা হলো
+  draggableId={`rin3-${member._id}`} // ১. draggableId ইউনিক করা হলো
   index={index}
   isDragDisabled={!isAdmin}
 >

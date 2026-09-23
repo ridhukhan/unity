@@ -72,18 +72,18 @@ export default function Rin() {
     setIsDropdownOpen(false);
   };
 
-  // Drag and Drop Handler (@hello-pangea/dnd)
-  const handleOnDragEnd = async (result) => {
+   const handleOnDragEnd = async (result) => {
     if (!result.destination) return;
 
     const items = Array.from(members);
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
 
-    // স্টেট আপডেট
-    setMembers(items);
+    // Context UI স্টেট সাথে সাথে আপডেট
+    if (setMembers) {
+      setMembers(items);
+    }
 
-    // ব্যাকএন্ডে সিরিয়াল আপডেট পাঠানো
     try {
       const res = await fetch("/api/rinmembers2", {
         method: "PUT",
@@ -101,7 +101,7 @@ export default function Rin() {
         refetchAll();
       } else {
         toast.error("ক্রম আপডেট করতে সমস্যা হয়েছে");
-       refetchAll();
+        refetchAll();
       }
     } catch (err) {
       toast.error("সার্ভার সমস্যা!");
